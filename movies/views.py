@@ -16,7 +16,7 @@ def get_all_movies_from_tmdb(request):
     load_dotenv()
     tmdb_api_key = os.getenv('TMDB_API_KEY')
 
-    for id in range(11, 12):
+    for id in range(1000):
         URL = f'https://api.themoviedb.org/3/movie/{id}?api_key=fd99d2b1c23f6f04fe6697ee24cbabc9&language=ko&region=KR'
         res = requests.get(URL)
 

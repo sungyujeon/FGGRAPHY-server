@@ -1,6 +1,7 @@
 from django.db import models
 
 
+
 class Movie(models.Model):
     id = models.IntegerField(primary_key=True)
     title = models.TextField()
@@ -19,17 +20,17 @@ class Movie(models.Model):
     original_language = models.CharField(max_length=20, null=True, blank=True)
     original_title = models.TextField(null=True, blank=True)
 
-class Genre(models.Model):
-    movies = models.ManyToManyField(Movie, related_name='genres')
-    id = models.IntegerField(primary_key=True, unique=True)
-    name = models.CharField(max_length=20)
-
 class BelongsToCollection(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    movies = models.ManyToManyField(Movie, related_name='belongs_to_collections')
     id = models.IntegerField(primary_key=True, unique=True)
     name = models.TextField(null=True, blank=True)
     poster_path = models.TextField(null=True, blank=True)
     backdrop_path = models.TextField(null=True, blank=True)
+
+class Genre(models.Model):
+    movies = models.ManyToManyField(Movie, related_name='genres')
+    id = models.IntegerField(primary_key=True, unique=True)
+    name = models.CharField(max_length=20)
 
 class ProductionCompany(models.Model):
     movies = models.ManyToManyField(Movie, related_name='production_companies')

@@ -125,6 +125,17 @@ class TmdbMovie():
             original_title = self.original_title
         )
 
+        # belongs_to_collection
+        if self.belongs_to_collection is not None:
+            belongs_to_collection, created = BelongsToCollection.objects.get_or_create(
+                id = self.belongs_to_collection.id,
+                name = self.belongs_to_collection.name,
+                poster_path = self.belongs_to_collection.poster_path,
+                backdrop_path = self.belongs_to_collection.backdrop_path
+            )
+            # add ManyToManyField
+            movie.belongs_to_collections.add(belongs_to_collection)
+
         # genre
         for i in range(len(self.genres)):
             genre, created = Genre.objects.get_or_create(
@@ -133,19 +144,6 @@ class TmdbMovie():
             )
             # add ManyToManyField
             movie.genres.add(genre)
-        
-
-        # belongs_to_collection
-        print(f'self.belongs_to_collection: {self.belongs_to_collection}')
-        if self.belongs_to_collection is not None:
-            belongs_to_collection, created = BelongsToCollection.objects.get_or_create(
-                id = self.belongs_to_collection.id,
-                name = self.belongs_to_collection.name,
-                poster_path = self.belongs_to_collection.poster_path,
-                backdrop_path = self.belongs_to_collection.backdrop_path,
-                movie = movie,
-            )
-            print(belongs_to_collection, created)
             
 
         # production_companies
