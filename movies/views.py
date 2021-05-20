@@ -30,12 +30,14 @@ def get_all_movies(request):
     
     return Response(serializer.data)
 
-
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
 def get_top_rated_movies(request, count):
-    # count
-    # q = Movie_User.objects.aggregate(Count('필드명'))
-    
-    Movie_User.objects.filter()
+    movies = Movie.objects.all().order_by('-rating_average')[:count]
+    serializer = MovieListSerializer(list(movies), many=True)
+
+    return Response(serializer.data)
     
 
 def get_all_movies_from_tmdb(request):
@@ -78,13 +80,24 @@ def get_seed_rating(request):
     return JsonResponse(data)
 
 def count_ratings(request):
-    # Movie_User.objects.
-    res = Movie_User.objects.all().order_by('rating').annotate(total=Sum('rating'))
-    print(res.values())
+    res = Movie_User.objects.values('movie').order_by('movie').annotate(total=Sum('rating')).order_by('-total')
     
+    for obj in res:
+        movie_id = obj.get('movie')
+        total = obj.get('total')
+
+        movie = get_object_or_404(Movie, pk=movie_id)
+        cnt = Movie_User.objects.filter(movie=movie_id).count()
+        avg = format(total / cnt, '.1f')
+        
+        # insert data into db
+        movie.rating_average = avg
+        movie.rating_count = cnt
+        movie.save()
+
     data = {
-        'res': 'success',
+        'res': res,
     }
 
-    return JsonResponse(data)
+    return HttpResponse(data)
     
