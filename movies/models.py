@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 
@@ -50,3 +51,9 @@ class SpokenLanguage(models.Model):
     english_name = models.CharField(max_length=50, unique=True)
     iso_639_1 = models.CharField(max_length=20)
     name = models.CharField(max_length=20)
+
+
+class Movie_User(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    rating = models.FloatField()
