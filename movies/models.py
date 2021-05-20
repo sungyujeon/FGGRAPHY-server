@@ -20,6 +20,9 @@ class Movie(models.Model):
     budget = models.IntegerField(null=True, blank=True)
     original_language = models.CharField(max_length=20, null=True, blank=True)
     original_title = models.TextField(null=True, blank=True)
+    rating_total = models.FloatField(default=0)
+    rating_count = models.IntegerField(default=0)
+
 
 class BelongsToCollection(models.Model):
     movies = models.ManyToManyField(Movie, related_name='belongs_to_collections')

@@ -6,21 +6,44 @@ import os
 
 from .modules import TmdbMovie
 from .models import Movie, Movie_User
+from .serializers import MovieListSerializer
+
+from django.db.models import Count, Sum
 from django.contrib.auth import get_user_model
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.http import HttpResponse, JsonResponse
 from django_seed import Seed
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 import random
 import requests
 from dotenv import load_dotenv, dotenv_values
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_all_movies(request):
+    movies = get_list_or_404(Movie)
+    serializer = MovieListSerializer(movies, many=True)
+    
+    return Response(serializer.data)
+
+
+def get_top_rated_movies(request, count):
+    # count
+    # q = Movie_User.objects.aggregate(Count('필드명'))
+    
+    Movie_User.objects.filter()
+    
 
 def get_all_movies_from_tmdb(request):
     load_dotenv()
     tmdb_api_key = os.getenv('TMDB_API_KEY')
 
     for id in range(50):
-        URL = f'https://api.themoviedb.org/3/movie/{id}?api_key=fd99d2b1c23f6f04fe6697ee24cbabc9&language=ko&region=KR'
+        URL = f'https://api.themoviedb.org/3/movie/{id}?api_key={tmdb_api_key}&language=ko&region=KR'
         res = requests.get(URL)
 
         # existed movies only
@@ -52,5 +75,16 @@ def get_seed_rating(request):
     data = {
         'success': True
     }
+    return JsonResponse(data)
+
+def count_ratings(request):
+    # Movie_User.objects.
+    res = Movie_User.objects.all().order_by('rating').annotate(total=Sum('rating'))
+    print(res.values())
+    
+    data = {
+        'res': 'success',
+    }
+
     return JsonResponse(data)
     
