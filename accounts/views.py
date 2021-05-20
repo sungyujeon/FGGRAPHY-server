@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserListSerializer
 from rest_framework.decorators import authentication_classes, permission_classes
 from .modules import UserSupport
 
@@ -39,17 +39,30 @@ def signup(request):
 
         # user_genre create
         # 추후 커뮤니티 활동 시 genre별 point도 증가시키기 위함
-        user_support = UserSupport(user)
-        user_support.set_genre_user()
+        user_support = UserSupport()
+        user_support.set_genre_user(user)
 
         # password는 직렬화 과정에는 포함 되지만 → 표현(response)할 때는 나타나지 않는다.
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+def get_top_ranked_users(request):
+    pass
 
-# insert data================================================================================================
+# admin
+def calc_ranking(request):
+    user_support = UserSupport()
+    users = user_support.set_ranking()
+    # serializers = UserListSerializer(list(users), many=True)
+    
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+    # return Response(serializers.data)
+
+# insert data / admin ================================================================================================
 def get_seed_users(request):
-    print('get_seed_users???')
     seeder = Seed.seeder()
     
     seeder.add_entity(get_user_model(), 100, {
@@ -62,8 +75,8 @@ def get_seed_users(request):
     # tmp user genre
     for i in range(1, 101):
         user = get_object_or_404(get_user_model(), pk=i)
-        user_support = UserSupport(user)
-        user_support.set_genre_user()
+        user_support = UserSupport()
+        user_support.set_genre_user(user)
         
     data = {
         'success': True

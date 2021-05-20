@@ -7,6 +7,9 @@ urlpatterns = [
     path('signup/', views.signup),
     path('api-token-auth/', obtain_jwt_token),
     
+    # admin
+    path('calc-ranking/', views.calc_ranking),
+
     # insert data
     path('seed-user/', views.get_seed_users),
 ]

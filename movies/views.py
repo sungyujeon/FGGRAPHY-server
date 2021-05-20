@@ -43,11 +43,12 @@ def get_top_rated_movies(request, count):
 @permission_classes([])   
 def get_movie_detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
+    print(movie)
     serializer = MovieSerializer(movie)
 
     return Response(serializer.data)
 
-# TMP FUNC TO INSERT DATA=================================================================================================
+# TMP FUNC TO INSERT DATA / admin =================================================================================================
 def get_all_movies_from_tmdb(request):
     load_dotenv()
     tmdb_api_key = os.getenv('TMDB_API_KEY')
