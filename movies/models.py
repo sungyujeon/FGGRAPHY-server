@@ -60,3 +60,10 @@ class Movie_User(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     rating = models.FloatField()
+
+class Genre_User(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    point = models.IntegerField(default=0)
+    ranking = models.IntegerField(null=True, default=None)
+    tier = models.IntegerField(null=True, default=None)

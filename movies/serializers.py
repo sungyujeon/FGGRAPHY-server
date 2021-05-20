@@ -37,3 +37,14 @@ class MovieListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = '__all__'
+
+class MovieSerializer(serializers.ModelSerializer):
+    genres = GenreSerializer(many=True, read_only=True)
+    belongs_to_collection = BelongsToCollectionSerializer(read_only=True)
+    production_companies = ProductionCompanySerializer(many=True, read_only=True)
+    production_countries = ProductionCountrySerializer(many=True, read_only=True)
+    spoken_languages = SpokenLanguageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Movie
+        fields = '__all__'

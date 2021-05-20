@@ -6,8 +6,8 @@
 
 - `$ python manage.py makemigrations`
 - `$ python manage.py migrate`
-- `$ python manage.py seed accounts --number=100`
-- `/api/v1/movies/TMDB/`  insert TMDB movie datas
-- `/api/v1/movies/seed-rating/` insert ratings in Movie_User Model
-- `/api/v1/movies/count-ratings/` count ratings and insert avg, count fields in Movie Model
+- `http://127.0.0.1:8000/api/v1/movies/TMDB/`  insert TMDB movie datas
+- `http://127.0.0.1:8000/accounts/seed-user/` insert users
+- `http://127.0.0.1:8000/api/v1/movies/seed-rating/` insert ratings in Movie_User Model
+- `http://127.0.0.1:8000/api/v1/movies/count-ratings/` count ratings and insert avg, count fields in Movie Model
 

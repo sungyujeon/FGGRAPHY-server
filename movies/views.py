@@ -2,11 +2,9 @@
 from pprint import pprint
 # end tmp libraries
 
-import os
-
 from .modules import TmdbMovie
 from .models import Movie, Movie_User
-from .serializers import MovieListSerializer
+from .serializers import MovieListSerializer, MovieSerializer
 
 from django.db.models import Count, Sum
 from django.contrib.auth import get_user_model
@@ -17,6 +15,7 @@ from django_seed import Seed
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
+import os
 import random
 import requests
 from dotenv import load_dotenv, dotenv_values
@@ -38,8 +37,17 @@ def get_top_rated_movies(request, count):
     serializer = MovieListSerializer(list(movies), many=True)
 
     return Response(serializer.data)
-    
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])   
+def get_movie_detail(request, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    serializer = MovieSerializer(movie)
+
+    return Response(serializer.data)
+
+# TMP FUNC TO INSERT DATA=================================================================================================
 def get_all_movies_from_tmdb(request):
     load_dotenv()
     tmdb_api_key = os.getenv('TMDB_API_KEY')
@@ -96,8 +104,8 @@ def count_ratings(request):
         movie.save()
 
     data = {
-        'res': res,
+        'res': 'success',
     }
 
-    return HttpResponse(data)
-    
+    return JsonResponse(data)
+# END TMP FUNC TO INSERT DATA==============================================================================================
