@@ -53,10 +53,13 @@ class CommentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         exclude = ('user', 'review',)
+        read_only_fields = ('user', 'review',)
 
 class ReviewListSerializer(serializers.ModelSerializer):
     like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
     comments = CommentListSerializer(many=True, read_only=True)
+
     class Meta:
         model = Review
         exclude = ('movie', 'user',)
+        read_only_fields = ('movie', 'user', 'like_users')

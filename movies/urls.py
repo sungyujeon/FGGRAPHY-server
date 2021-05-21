@@ -4,8 +4,10 @@ from . import views
 app_name = 'movies'
 urlpatterns = [
     path('', views.get_all_movies),
-    path('<int:movie_pk>/', views.get_movie_detail),
     path('top-rated/<int:count>/', views.get_top_rated_movies),
+    path('<int:movie_pk>/', views.get_movie_detail),
+    path('<int:movie_pk>/reviews/', views.get_or_create_reviews),
+    path('<int:movie_pk>/reviews/<int:review_pk>/comments/', views.get_or_create_comments),
     
 
     # insert data / admin

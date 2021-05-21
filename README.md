@@ -24,6 +24,20 @@
 
 
 
+##### Movie Detail 내(1개 영화)
+
+- 모든 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
+
+  postman : data(content)
+
+
+
+- 모든 댓글 정보(하는중)
+
+  http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_id}/comments/
+
+- 
+
 ##### Account
 
 - 전체 랭킹 갱신(admin) http://127.0.0.1:8000/accounts/calc-ranking/

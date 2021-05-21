@@ -1,10 +1,12 @@
 # tmp libraries
 from pprint import pprint
+from django.contrib.auth import get_user_model
+User = get_user_model()
 # end tmp libraries
 
 from .modules import TmdbMovie
-from .models import Movie, Movie_User_Rating
-from .serializers import MovieListSerializer, MovieSerializer
+from .models import Movie, Movie_User_Rating, Review, Comment
+from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, CommentListSerializer
 
 from django.db.models import Count, Sum
 from django.contrib.auth import get_user_model
@@ -12,6 +14,7 @@ from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.http import HttpResponse, JsonResponse
 from django_seed import Seed
 
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
@@ -46,6 +49,63 @@ def get_top_rated_movies(request, count):
     serializer = MovieListSerializer(list(movies), many=True)
 
     return Response(serializer.data)
+
+# review
+@api_view(['GET', 'POST'])
+@authentication_classes([])
+@permission_classes([])
+def get_or_create_reviews(request, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    if request.method == 'GET':  # 전체 review 조회 
+        reviews = movie.review_set.all()
+        serializers = ReviewListSerializer(reviews)
+
+        return Response(serializers.data)
+    elif request.method == 'POST':  # review 생성
+        serializer = ReviewListSerializer(data=request.data)
+        print(serializer)
+        if serializer.is_valid(raise_exception=True):
+            # serializer.save(user=request.user, movie=movie)
+            
+            # test
+            user = get_object_or_404(User, pk=2)
+            serializer.save(user=user, movie=movie)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    data = {
+        'success': False,
+    }
+    
+    return JsonResponse(data)
+
+# comment
+@api_view(['GET', 'POST'])
+@authentication_classes([])
+@permission_classes([])
+def get_or_create_comments(request, movie_pk, review_pk):
+    review = get_object_or_404(Review, pk=review_pk)
+    if request.method == 'GET':  # 전체 comments 조회 
+        comments = Review.comment_set.all()
+        serializers = ReviewListSerializer(comments)
+
+        return Response(serializers.data)
+    elif request.method == 'POST':  # comment 생성
+        serializer = CommentListSerializer(data=request.data)
+        
+        if serializer.is_valid(raise_exception=True):
+            # serializer.save(user=request.user, review=review)
+            
+            # test
+            user = get_object_or_404(User, pk=2)
+            serializer.save(user=user, review=review)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    data = {
+        'success': False,
+    }
+    
+    return JsonResponse(data)
+
 
 
 # TMP FUNC TO INSERT DATA / admin =================================================================================================
