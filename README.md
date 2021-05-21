@@ -35,9 +35,18 @@
 ##### Genre(장르별 영화)
 
 - 모든 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/
+
 - 개별 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/10751/datas
+
 - 개별 장르의 모든 영화 정보 http://127.0.0.1:8000/api/v1/movies/genres/10751/
+
 - review 많은 순 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/top-reviewed/
+
+- 전체 장르별 랭커 n명 출력 http://127.0.0.1:8000/api/v1/movies/genres/top-ranked/?ranker_nums={ranker_nums}
+
+  `type: json`, `key(genre_id): value(rankers object list)`
+
+  key는 genre_id, value는 랭킹 n등 안에 드는 사람들의 genre_user 객체 리스트
 
 
 

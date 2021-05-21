@@ -265,16 +265,21 @@ def get_top_reviewed_genres(request):  # 장르별 리뷰순
     
     return Response(serializer.data)
 
-
-def get_genre_top_ranked_user(request):
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_all_genre_top_ranked_users(request):
+    ranker_nums = int(request.GET.get('ranker_nums'))
     genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
-    for genre_id in genre_ids:
-        genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')[:5]
     
-    data = {
-        'success': True,
-    }
-    return JsonResponse(data)
+    res = {}   
+    for genre_id in genre_ids:
+        genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')[:ranker_nums]
+        serializer = GenreUserListSerializer(list(genre_users), many=True)
+        genre_id = serializer.data[0].get('genre')
+        res[genre_id] = serializer.data
+
+    return Response(res)
 
 # infinity scroll ================================================================================
 @api_view(['GET'])

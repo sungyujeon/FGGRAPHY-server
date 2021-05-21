@@ -17,7 +17,7 @@ urlpatterns = [
     path('genres/<int:genre_pk>/datas/', views.get_genre_datas),
     path('genres/<int:genre_pk>/', views.get_genre_all_movies),
     path('genres/top-reviewed/', views.get_top_reviewed_genres),
-    path('genres/top-ranked/', views.get_genre_top_ranked_user),
+    path('genres/top-ranked/', views.get_all_genre_top_ranked_users),
     
     # infinity scroll
     path('infinite-scroll/reviews/', views.infinite_scroll_review),
