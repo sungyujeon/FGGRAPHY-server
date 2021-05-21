@@ -9,6 +9,7 @@ from .modules import TmdbMovie
 from .models import Movie, Movie_User_Rating, Review, Comment, Genre
 from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer
 
+from django.core.paginator import Paginator
 from django.db.models import Count, Sum
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404, get_list_or_404
@@ -246,11 +247,24 @@ def get_genre_all_movies(request, genre_pk):  # 개별 장르의 모든 영화 �
 def get_top_reviewed_genres(request):  # 장르별 리뷰순
     genres = Genre.objects.all().order_by('-total_review_count')
     serializer = GenreListSerializer(genres, many=True)
-
+    
     return Response(serializer.data)
 
 
+# infinity scroll ================================================================================
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def infinite_scroll_review(request):
+    reviews = get_list_or_404(Review)
+    paginator = Paginator(reviews, 9)
+    
+    page_num = request.GET.get('page_num')
 
+    reviews = paginator.get_page(page_num)
+    serializer = ReviewListSerializer(reviews, many=True)
+    
+    return Response(serializer.data)
 
 
 

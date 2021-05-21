@@ -18,7 +18,8 @@ urlpatterns = [
     path('genres/<int:genre_pk>/', views.get_genre_all_movies),
     path('genres/top-reviewed/', views.get_top_reviewed_genres),
     
-    
+    # infinity scroll
+    path('infinite-scroll/reviews/', views.infinite_scroll_review),
 
     # insert data / admin
     path('TMDB/', views.get_all_movies_from_tmdb),  # insert data from TMDB
