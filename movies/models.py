@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 
@@ -19,6 +20,9 @@ class Movie(models.Model):
     budget = models.IntegerField(null=True, blank=True)
     original_language = models.CharField(max_length=20, null=True, blank=True)
     original_title = models.TextField(null=True, blank=True)
+    rating_average = models.FloatField(default=0.0)
+    rating_count = models.IntegerField(default=0)
+
 
 class BelongsToCollection(models.Model):
     movies = models.ManyToManyField(Movie, related_name='belongs_to_collections')
@@ -50,3 +54,33 @@ class SpokenLanguage(models.Model):
     english_name = models.CharField(max_length=50, unique=True)
     iso_639_1 = models.CharField(max_length=20)
     name = models.CharField(max_length=20)
+
+
+class Movie_User(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    rating = models.FloatField()
+
+class Genre_User(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    point = models.IntegerField(default=0)
+    ranking = models.IntegerField(null=True, default=None)
+    tier = models.IntegerField(null=True, default=None)
+
+
+class Review(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like_reviews')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class Comment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+

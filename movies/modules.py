@@ -122,7 +122,10 @@ class TmdbMovie():
             adult = self.adult,
             budget = self.budget,
             original_language = self.original_language,
-            original_title = self.original_title
+            original_title = self.original_title,
+            rating_average = 0.0,
+            rating_count = 0
+            
         )
 
         # belongs_to_collection
