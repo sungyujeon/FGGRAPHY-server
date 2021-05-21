@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Movie, Genre, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre
+from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -87,3 +87,9 @@ class GenreListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         exclude = ('movies',)
+
+class GenreUserListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre_User
+        fields = '__all__'

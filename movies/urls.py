@@ -17,9 +17,13 @@ urlpatterns = [
     path('genres/<int:genre_pk>/datas/', views.get_genre_datas),
     path('genres/<int:genre_pk>/', views.get_genre_all_movies),
     path('genres/top-reviewed/', views.get_top_reviewed_genres),
+    path('genres/top-ranked/', views.get_genre_top_ranked_user),
     
     # infinity scroll
     path('infinite-scroll/reviews/', views.infinite_scroll_review),
+
+    # admin
+    path('calc-genre-ranking/', views.calc_genre_ranking),
 
     # insert data / admin
     path('TMDB/', views.get_all_movies_from_tmdb),  # insert data from TMDB
@@ -28,4 +32,5 @@ urlpatterns = [
     path('seed-comment/', views.get_seed_comment),  # insert comment datas
     path('count-ratings/', views.count_ratings),  # calculate distincted ratings
     path('count-reviews/', views.count_genre_reviews),  # count reviews by genres
+    path('count-comments/', views.count_genre_comments),  # count comments by genres
 ]

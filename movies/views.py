@@ -5,9 +5,9 @@ from pprint import pprint
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-from .modules import TmdbMovie
-from .models import Movie, Movie_User_Rating, Review, Comment, Genre
-from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer
+from .modules import TmdbMovie, Ranking
+from .models import Movie, Movie_User_Rating, Review, Comment, Genre, Genre_User
+from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer
 
 from django.core.paginator import Paginator
 from django.db.models import Count, Sum
@@ -71,13 +71,11 @@ def get_or_create_reviews(request, movie_pk):
             # test code / request.user가 현재 존재하지 않으므로 2번 user로 임시 대체
             # serializer.save(user=request.user, movie=movie)
             user = get_object_or_404(User, pk=2)
-            serializer.save(user=user, movie=movie)
+            review = serializer.save(user=user, movie=movie)
 
-            # 해당 영화의 장르 review_count 증가
-            genres = movie.genres.all()
-            for genre in genres:
-                genre.total_review_count += 1
-                genre.save()
+            # review 생성 시 point 증가
+            ranking = Ranking()
+            ranking.increase_review_point(review)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -105,12 +103,9 @@ def get_or_update_or_delete_review(request, review_pk):
     elif request.method == 'DELETE':  # review 삭제
         review.delete()
 
-        # 해당 영화의 장르 review_count 감소
-        movie = get_object_or_404(Movie, pk=review.movie_id)
-        genres = movie.genres.all()
-        for genre in genres:
-            genre.total_review_count -= 1
-            genre.save()
+        # review 생성 시 point 증가
+        ranking = Ranking()
+        ranking.decrease_review_point(review)
 
         data = {
             'success': True,
@@ -131,20 +126,30 @@ def get_or_update_or_delete_review(request, review_pk):
 @permission_classes([])
 def like_review(request, review_pk):
     review = get_object_or_404(Review, pk=review_pk)
-
+    ranking = Ranking()
+    like_status = False
     try:
         # if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
         if review.like_users.filter(pk=5).exists():  # test code(request.user 없음)
             # review.like_users.remove(request.user)
             user = get_object_or_404(User, pk=5)
             review.like_users.remove(user)
+            like_status = False
+
+            # review_like 포인트--
+            ranking.decrease_review_like_point(review)
         else: # 좋아요 누름
             # review.like_users.add(request.user)
             user = get_object_or_404(User, pk=5)
             review.like_users.add(user)
+            like_status = True
+
+            # review_like 포인트++
+            ranking.increase_review_like_point(review)
         
         data = {
             'success': True,
+            'like_status': like_status,
         }
     except:
         return JsonResponse({ 'success': False })
@@ -169,8 +174,13 @@ def get_or_create_comments(request, review_pk):
             # serializer.save(user=request.user, review=review)
             
             # test
-            user = get_object_or_404(User, pk=3)
+            user = get_object_or_404(User, pk=1)
             serializer.save(user=user, review=review)
+
+            # comment 받은 사람 point++
+            ranking = Ranking()
+            ranking.increase_comment_point(review)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     data = {
@@ -197,6 +207,11 @@ def get_or_update_or_delete_comment(request, comment_pk):
             return Response(serializer.data)
     elif request.method == 'DELETE':  # comment 삭제
         comment.delete()
+
+        # comment 삭제 시 point--
+        review = get_object_or_404(Review, pk=comment.review_id)
+        ranking = Ranking()
+        ranking.decrease_comment_point(review)
 
         data = {
             'success': True,
@@ -251,6 +266,16 @@ def get_top_reviewed_genres(request):  # 장르별 리뷰순
     return Response(serializer.data)
 
 
+def get_genre_top_ranked_user(request):
+    genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
+    for genre_id in genre_ids:
+        genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')[:5]
+    
+    data = {
+        'success': True,
+    }
+    return JsonResponse(data)
+
 # infinity scroll ================================================================================
 @api_view(['GET'])
 @authentication_classes([])
@@ -266,6 +291,21 @@ def infinite_scroll_review(request):
     
     return Response(serializer.data)
 
+
+# admin============================================================================================================
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def calc_genre_ranking(request):
+    ranking = Ranking()
+    ranking.set_genre_ranking()
+    # serializers = GenreUserListSerializer(list(users), many=True)
+    
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+    # return Response(serializers.data)
 
 
 # TMP FUNC TO INSERT DATA / admin =================================================================================================
@@ -350,15 +390,12 @@ def get_seed_review(request):
 
 def count_genre_reviews(request):
     reviews = get_list_or_404(Review)
-
-    for review in reviews:
-        movie = get_object_or_404(Movie, pk=review.movie_id)
-        
-        genres = movie.genres.all()
-        for genre in genres:
-            genre.total_review_count += 1
-            genre.save()
+    ranking = Ranking()
     
+    # 생성된 review 기반 point 증가
+    for review in reviews:
+        ranking.increase_review_point(review)
+
     data = {
         'success': True
     }
@@ -374,6 +411,20 @@ def get_seed_comment(request):
     })
     seeder.execute()
 
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+def count_genre_comments(request):
+    comments = get_list_or_404(Comment)
+
+    # 생성된 comment 기반 point 증가
+    for comment in comments:
+        review = get_object_or_404(Review, pk=comment.review_id)
+        ranking = Ranking()
+        ranking.increase_comment_point(review)
+    
     data = {
         'success': True
     }

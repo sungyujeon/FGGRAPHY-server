@@ -1,6 +1,9 @@
 from django.shortcuts import get_object_or_404
-from .models import Movie, Genre, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage
+from django.contrib.auth import get_user_model
 
+from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage
+
+User = get_user_model()
 
 class TmdbMovie():
     
@@ -180,8 +183,140 @@ class TmdbMovie():
             # add ManyToManyField
             movie.spoken_languages.add(spoken_language)
 
-        
-
     def __str__(self):
         return self.title
+
+class Ranking():
+
+    def __init__(self):
+        pass
+    
+    # review
+    def increase_review_point(self, review):
+        user = get_object_or_404(User, pk=review.user_id)
+        movie = get_object_or_404(Movie, pk=review.movie_id)
+
+        genres = movie.genres.all()
+        for genre in genres:
+            # genre.total_review_count
+            genre.total_review_count += 1
+            genre.save()
+            
+            # genre_user
+            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+            genre_user.point += 1
+            genre_user.save()
+
+        # user
+        user.point += 1
+        user.save()
         
+    def decrease_review_point(self, review):
+        user = get_object_or_404(User, pk=review.user_id)
+        movie = get_object_or_404(Movie, pk=review.movie_id)
+
+        genres = movie.genres.all()
+        for genre in genres:
+            # genre.total_review_count
+            genre.total_review_count -= 1
+            genre.save()
+            
+            # genre_user
+            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+            genre_user.point -= 1
+            genre_user.save()
+
+        # user
+        user.point -= 1
+        user.save()
+
+
+    # review_like
+    def increase_review_like_point(self, review):
+        user = get_object_or_404(User, pk=review.user_id)
+        print(user)
+        movie = get_object_or_404(Movie, pk=review.movie_id)
+
+        genres = movie.genres.all()
+        for genre in genres:
+            # genre_user
+            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+            genre_user.point += 1
+            genre_user.save()
+
+        # user
+        user.point += 1
+        user.save()
+
+    def decrease_review_like_point(self, review):
+        user = get_object_or_404(User, pk=review.user_id)
+        movie = get_object_or_404(Movie, pk=review.movie_id)
+
+        genres = movie.genres.all()
+        for genre in genres:
+            # genre_user
+            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+            genre_user.point -= 1
+            genre_user.save()
+
+        # user
+        user.point -= 1
+        user.save()
+
+    # comment 받은 사람
+    def increase_comment_point(self, review):
+        user = get_object_or_404(User, pk=review.user_id)
+        movie = get_object_or_404(Movie, pk=review.movie_id)
+
+        genres = movie.genres.all()
+        for genre in genres:
+            # genre_user
+            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+            genre_user.point += 1
+            genre_user.save()
+
+        # user
+        user.point += 1
+        user.save()
+
+    def decrease_comment_point(self, review):
+        user = get_object_or_404(User, pk=review.user_id)
+        movie = get_object_or_404(Movie, pk=review.movie_id)
+
+        genres = movie.genres.all()
+        for genre in genres:
+            # genre_user
+            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+            genre_user.point -= 1
+            genre_user.save()
+
+        # user
+        user.point -= 1
+        user.save()
+
+    # genre_user set_ranking
+    def set_genre_ranking(self):
+        genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
+        for genre_id in genre_ids:
+            genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')
+
+            tmp_i = 0
+            tmp_p = 0
+            for i in range(len(genre_users)):
+                genre_user = genre_users[i]
+                p = genre_user.point
+                if i == 0:
+                    genre_user.ranking = i+1
+                    genre_user.save()
+                    tmp_i = i+1
+                    tmp_p = p
+                else:
+                    if p == tmp_p:
+                        genre_user.ranking = tmp_i
+                        genre_user.save()
+                    else:
+                        genre_user.ranking = i+1
+                        genre_user.save()
+                        tmp_i = i+1
+                        tmp_p = p
+        return
