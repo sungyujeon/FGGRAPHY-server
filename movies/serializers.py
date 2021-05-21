@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Movie, Genre, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage
+from .models import Movie, Genre, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,6 +26,18 @@ class SpokenLanguageSerializer(serializers.ModelSerializer):
         model = SpokenLanguage
         exclude = ('movies',)
 
+class CommentListSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Comment
+        exclude = ('user', 'review',)
+
+class ReviewListSerializer(serializers.ModelSerializer):
+    like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
+    comments = CommentListSerializer(many=True, read_only=True)
+    class Meta:
+        model = Review
+        exclude = ('movie', 'user',)
 
 class MovieListSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True, read_only=True)
@@ -33,7 +45,6 @@ class MovieListSerializer(serializers.ModelSerializer):
     production_companies = ProductionCompanySerializer(many=True, read_only=True)
     production_countries = ProductionCountrySerializer(many=True, read_only=True)
     spoken_languages = SpokenLanguageSerializer(many=True, read_only=True)
-
     class Meta:
         model = Movie
         fields = '__all__'

@@ -43,8 +43,8 @@ def get_top_rated_movies(request, count):
 @permission_classes([])   
 def get_movie_detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
-    print(movie)
     serializer = MovieSerializer(movie)
+    print(serializer.data)
 
     return Response(serializer.data)
 
