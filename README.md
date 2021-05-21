@@ -26,29 +26,46 @@
 
 ##### Movie Detail 내(1개 영화)
 
-- 모든 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
+- Review
+  - 모든 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
 
-- 리뷰 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
+  - 리뷰 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
 
-  postman: data(content) / POST
+    postman: data(content) / POST
 
-- 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+  - 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
 
-- 리뷰 수정 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+  - 리뷰 수정 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
 
-  postman: data(content) / PUT
+    postman: data(content) / PUT
 
-- 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+  - 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
 
-  postman: DELETE
+    postman: DELETE
+
+- Comment
+
+  - 모든 댓글 정보 http://127.0.0.1:8000/api/v1/movies/reviews/{review_pk}/
+
+  - 댓글 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
+
+    postman: data(content) / POST
+
+  - 단일 댓글 정보 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/
+
+  - 댓글 수정 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/
+
+    postman: data(content) / PUT
+
+  - 댓글 삭제 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/
+
+    postman: DELETE
 
 
 
-- 모든 댓글 정보(하는중)
 
-  http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_id}/comments/
 
-- 
+
 
 ##### Account
 
