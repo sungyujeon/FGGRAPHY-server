@@ -12,8 +12,8 @@ class UserSupport():
         pass
 
     def set_genre_user(self, user):
-        genre_id_list = [12, 14, 16, 18, 27, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
-        for genre_id in genre_id_list:
+        genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
+        for genre_id in genre_ids:
             genre = get_object_or_404(Genre, pk=genre_id)
             
             genre_user, created = Genre_User.objects.get_or_create(
