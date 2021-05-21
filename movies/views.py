@@ -6,7 +6,7 @@ User = get_user_model()
 
 from .modules import TmdbMovie
 from .models import Movie, Movie_User_Rating, Review, Comment
-from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, CommentListSerializer
+from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer
 
 from django.db.models import Count, Sum
 from django.contrib.auth import get_user_model
@@ -58,18 +58,19 @@ def get_or_create_reviews(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     if request.method == 'GET':  # 전체 review 조회 
         reviews = movie.review_set.all()
-        serializers = ReviewListSerializer(reviews)
+        serializers = ReviewListSerializer(list(reviews), many=True)
 
         return Response(serializers.data)
     elif request.method == 'POST':  # review 생성
         serializer = ReviewListSerializer(data=request.data)
-        print(serializer)
+
         if serializer.is_valid(raise_exception=True):
             # serializer.save(user=request.user, movie=movie)
             
-            # test
+            # test code / request.user가 현재 존재하지 않으므로 2번 user로 임시 대체
             user = get_object_or_404(User, pk=2)
             serializer.save(user=user, movie=movie)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     data = {
@@ -78,27 +79,90 @@ def get_or_create_reviews(request, movie_pk):
     
     return JsonResponse(data)
 
+@api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([])
+@permission_classes([])
+def get_or_update_or_delete_review(request, review_pk):
+    review = get_object_or_404(Review, pk=review_pk)
+    if request.method == 'GET':  # 단일 review 조회 
+        serializers = ReviewSerializer(review)
+
+        return Response(serializers.data)
+    elif request.method == 'PUT':  # review 수정
+        serializer = ReviewListSerializer(review, data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+    elif request.method == 'DELETE':  # review 삭제
+        review.delete()
+
+        data = {
+            'success': True,
+            'message': f'{review_pk}번 리뷰 삭제',
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    data = {
+        'success': False,
+    }
+    
+    return JsonResponse(data)
+
+
 # comment
 @api_view(['GET', 'POST'])
 @authentication_classes([])
 @permission_classes([])
-def get_or_create_comments(request, movie_pk, review_pk):
+def get_or_create_comments(request, review_pk):
     review = get_object_or_404(Review, pk=review_pk)
     if request.method == 'GET':  # 전체 comments 조회 
-        comments = Review.comment_set.all()
-        serializers = ReviewListSerializer(comments)
+        comments = review.comment_set.all()
+        serializers = CommentListSerializer(list(comments), many=True)
 
         return Response(serializers.data)
     elif request.method == 'POST':  # comment 생성
         serializer = CommentListSerializer(data=request.data)
-        
         if serializer.is_valid(raise_exception=True):
             # serializer.save(user=request.user, review=review)
             
             # test
-            user = get_object_or_404(User, pk=2)
+            user = get_object_or_404(User, pk=3)
             serializer.save(user=user, review=review)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    data = {
+        'success': False,
+    }
+    
+    return JsonResponse(data)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([])
+@permission_classes([])
+def get_or_update_or_delete_comment(request, comment_pk):
+    comment = get_object_or_404(Comment, pk=comment_pk)
+    if request.method == 'GET':  # 단일 comment 조회 
+        serializers = CommentSerializer(comment)
+
+        return Response(serializers.data)
+    elif request.method == 'PUT':  # comment 수정
+        serializer = CommentSerializer(comment, data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+    elif request.method == 'DELETE':  # comment 삭제
+        comment.delete()
+
+        data = {
+            'success': True,
+            'message': f'{comment_pk}번 댓글 삭제',
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
 
     data = {
         'success': False,

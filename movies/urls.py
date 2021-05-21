@@ -7,7 +7,9 @@ urlpatterns = [
     path('top-rated/<int:count>/', views.get_top_rated_movies),
     path('<int:movie_pk>/', views.get_movie_detail),
     path('<int:movie_pk>/reviews/', views.get_or_create_reviews),
-    path('<int:movie_pk>/reviews/<int:review_pk>/comments/', views.get_or_create_comments),
+    path('reviews/<int:review_pk>/', views.get_or_update_or_delete_review),
+    path('reviews/<int:review_pk>/comments/', views.get_or_create_comments),
+    path('comments/<int:comment_pk>/', views.get_or_update_or_delete_comment),
     
 
     # insert data / admin
