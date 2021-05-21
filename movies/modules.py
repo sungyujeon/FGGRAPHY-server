@@ -143,7 +143,8 @@ class TmdbMovie():
         for i in range(len(self.genres)):
             genre, created = Genre.objects.get_or_create(
                 id = self.genres[i].id,
-                name = self.genres[i].name
+                name = self.genres[i].name,
+                total_review_count = 0
             )
             # add ManyToManyField
             movie.genres.add(genre)

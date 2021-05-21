@@ -26,19 +26,6 @@ class SpokenLanguageSerializer(serializers.ModelSerializer):
         model = SpokenLanguage
         exclude = ('movies',)
 
-class CommentListSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Comment
-        exclude = ('user', 'review',)
-
-class ReviewListSerializer(serializers.ModelSerializer):
-    like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
-    comments = CommentListSerializer(many=True, read_only=True)
-    class Meta:
-        model = Review
-        exclude = ('movie', 'user',)
-
 class MovieListSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True, read_only=True)
     belongs_to_collection = BelongsToCollectionSerializer(read_only=True)
@@ -59,3 +46,20 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = '__all__'
+
+
+class CommentListSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Comment
+        exclude = ('user', 'review',)
+        read_only_fields = ('user', 'review',)
+
+class ReviewListSerializer(serializers.ModelSerializer):
+    like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
+    comments = CommentListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Review
+        exclude = ('movie', 'user',)
+        read_only_fields = ('movie', 'user', 'like_users')

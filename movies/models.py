@@ -35,6 +35,7 @@ class Genre(models.Model):
     movies = models.ManyToManyField(Movie, related_name='genres')
     id = models.IntegerField(primary_key=True, unique=True)
     name = models.CharField(max_length=20)
+    total_review_count = models.IntegerField(default=0)
 
 class ProductionCompany(models.Model):
     movies = models.ManyToManyField(Movie, related_name='production_companies')
@@ -56,7 +57,7 @@ class SpokenLanguage(models.Model):
     name = models.CharField(max_length=20)
 
 
-class Movie_User(models.Model):
+class Movie_User_Rating(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     rating = models.FloatField()
