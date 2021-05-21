@@ -28,7 +28,19 @@
 
 - 모든 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
 
-  postman : data(content)
+- 리뷰 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
+
+  postman: data(content) / POST
+
+- 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+
+- 리뷰 수정 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+
+  postman: data(content) / PUT
+
+- 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+
+  postman: DELETE
 
 
 
