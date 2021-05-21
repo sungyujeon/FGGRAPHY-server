@@ -233,4 +233,37 @@ def count_ratings(request):
     }
 
     return JsonResponse(data)
+
+
+def get_seed_review(request):
+    movie_ids = [2,3,5,6,8,9,11,12,13,14,15,16,17,18,19,20,21,22,24,25,26,27,28,30,31,32,33,35,38]
+    #user 1~100
+
+    seeder = Seed.seeder()
+    
+    seeder.add_entity(Review, 200, {
+        'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
+        'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 28)]),
+    })
+    seeder.execute()
+
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+def get_seed_comment(request):
+    seeder = Seed.seeder()
+    
+    seeder.add_entity(Comment, 500, {
+        'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
+        'review': lambda x: get_object_or_404(Review, pk=random.randint(1, 200)),
+    })
+    seeder.execute()
+
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
 # END TMP FUNC TO INSERT DATA==============================================================================================

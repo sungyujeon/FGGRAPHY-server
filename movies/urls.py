@@ -14,6 +14,8 @@ urlpatterns = [
 
     # insert data / admin
     path('TMDB/', views.get_all_movies_from_tmdb),  # insert data from TMDB
-    path('seed-rating/', views.get_seed_rating),  # insert rating datas from seed lib
+    path('seed-rating/', views.get_seed_rating),  # insert rating datas
+    path('seed-review/', views.get_seed_review),  # insert review datas
+    path('seed-comment/', views.get_seed_comment),  # insert comment datas
     path('count-ratings/', views.count_ratings),  # caculate distincted ratings
 ]
