@@ -1,13 +1,15 @@
 # tmp libraries
 from pprint import pprint
-from django.contrib.auth import get_user_model
-User = get_user_model()
 # end tmp libraries
 
-from .modules import TmdbMovie
-from .models import Movie, Movie_User_Rating, Review, Comment
-from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
+from .modules import TmdbMovie
+from .models import Movie, Movie_User_Rating, Review, Comment, Genre
+from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer
+
+from django.core.paginator import Paginator
 from django.db.models import Count, Sum
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404, get_list_or_404
@@ -50,7 +52,8 @@ def get_top_rated_movies(request, count):
 
     return Response(serializer.data)
 
-# review
+
+# review ======================================================================
 @api_view(['GET', 'POST'])
 @authentication_classes([])
 @permission_classes([])
@@ -65,11 +68,16 @@ def get_or_create_reviews(request, movie_pk):
         serializer = ReviewListSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            # serializer.save(user=request.user, movie=movie)
-            
             # test code / request.user가 현재 존재하지 않으므로 2번 user로 임시 대체
+            # serializer.save(user=request.user, movie=movie)
             user = get_object_or_404(User, pk=2)
             serializer.save(user=user, movie=movie)
+
+            # 해당 영화의 장르 review_count 증가
+            genres = movie.genres.all()
+            for genre in genres:
+                genre.total_review_count += 1
+                genre.save()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -97,6 +105,13 @@ def get_or_update_or_delete_review(request, review_pk):
     elif request.method == 'DELETE':  # review 삭제
         review.delete()
 
+        # 해당 영화의 장르 review_count 감소
+        movie = get_object_or_404(Movie, pk=review.movie_id)
+        genres = movie.genres.all()
+        for genre in genres:
+            genre.total_review_count -= 1
+            genre.save()
+
         data = {
             'success': True,
             'message': f'{review_pk}번 리뷰 삭제',
@@ -110,8 +125,34 @@ def get_or_update_or_delete_review(request, review_pk):
     
     return JsonResponse(data)
 
+# review like
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def like_review(request, review_pk):
+    review = get_object_or_404(Review, pk=review_pk)
 
-# comment
+    try:
+        # if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
+        if review.like_users.filter(pk=5).exists():  # test code(request.user 없음)
+            # review.like_users.remove(request.user)
+            user = get_object_or_404(User, pk=5)
+            review.like_users.remove(user)
+        else: # 좋아요 누름
+            # review.like_users.add(request.user)
+            user = get_object_or_404(User, pk=5)
+            review.like_users.add(user)
+        
+        data = {
+            'success': True,
+        }
+    except:
+        return JsonResponse({ 'success': False })
+    
+    return JsonResponse(data)
+
+
+# comment ======================================================================
 @api_view(['GET', 'POST'])
 @authentication_classes([])
 @permission_classes([])
@@ -169,6 +210,61 @@ def get_or_update_or_delete_comment(request, comment_pk):
     }
     
     return JsonResponse(data)
+
+
+# genre별 영화 ======================================================================
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_all_genres(request):  # 전체 장르 정보
+    genres = get_list_or_404(Genre)
+    serializer = GenreListSerializer(genres, many=True)
+    
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_genre_datas(request, genre_pk):  # 개별 장르 정보
+    genre = get_object_or_404(Genre, pk=genre_pk)
+    serializer = GenreSerializer(genre)
+    
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_genre_all_movies(request, genre_pk):  # 개별 장르의 모든 영화 정보
+    genre = get_object_or_404(Genre, pk=genre_pk)
+    movies = genre.movies.all()
+    serializer = MovieListSerializer(list(movies), many=True)
+    
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_top_reviewed_genres(request):  # 장르별 리뷰순
+    genres = Genre.objects.all().order_by('-total_review_count')
+    serializer = GenreListSerializer(genres, many=True)
+    
+    return Response(serializer.data)
+
+
+# infinity scroll ================================================================================
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def infinite_scroll_review(request):
+    reviews = get_list_or_404(Review)
+    paginator = Paginator(reviews, 9)
+    
+    page_num = request.GET.get('page_num')
+
+    reviews = paginator.get_page(page_num)
+    serializer = ReviewListSerializer(reviews, many=True)
+    
+    return Response(serializer.data)
 
 
 
@@ -233,4 +329,54 @@ def count_ratings(request):
     }
 
     return JsonResponse(data)
+
+
+def get_seed_review(request):
+    movie_ids = [2,3,5,6,8,9,11,12,13,14,15,16,17,18,19,20,21,22,24,25,26,27,28,30,31,32,33,35,38]
+    #user 1~100
+
+    seeder = Seed.seeder()
+    
+    seeder.add_entity(Review, 200, {
+        'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
+        'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 28)]),
+    })
+    seeder.execute()
+
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+def count_genre_reviews(request):
+    reviews = get_list_or_404(Review)
+
+    for review in reviews:
+        movie = get_object_or_404(Movie, pk=review.movie_id)
+        
+        genres = movie.genres.all()
+        for genre in genres:
+            genre.total_review_count += 1
+            genre.save()
+    
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+
+def get_seed_comment(request):
+    seeder = Seed.seeder()
+    
+    seeder.add_entity(Comment, 500, {
+        'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
+        'review': lambda x: get_object_or_404(Review, pk=random.randint(1, 200)),
+    })
+    seeder.execute()
+
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
 # END TMP FUNC TO INSERT DATA==============================================================================================
