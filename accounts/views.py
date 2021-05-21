@@ -1,8 +1,8 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+
 from .serializers import UserSerializer, UserListSerializer
-from rest_framework.decorators import authentication_classes, permission_classes
 from .modules import UserSupport
 
 # lib for insert data
@@ -14,6 +14,7 @@ from django_seed import Seed
 from django.http import JsonResponse
 # end lib for insert data
 
+User = get_user_model()
 
 @api_view(['POST'])
 @authentication_classes([])
@@ -45,11 +46,19 @@ def signup(request):
         # password는 직렬화 과정에는 포함 되지만 → 표현(response)할 때는 나타나지 않는다.
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_top_ranked_users(request, count):
+    users = User.objects.all().order_by('ranking')[:count]
+    serializer = UserListSerializer(list(users), many=True)
 
-def get_top_ranked_users(request):
-    pass
+    return Response(serializer.data)
 
 # admin
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
 def calc_ranking(request):
     user_support = UserSupport()
     users = user_support.set_ranking()
@@ -65,7 +74,7 @@ def calc_ranking(request):
 def get_seed_users(request):
     seeder = Seed.seeder()
     
-    seeder.add_entity(get_user_model(), 100, {
+    seeder.add_entity(User, 100, {
         'point': lambda x: random.randint(1, 100),
         'ranking': 0,
         'tier': 0,
@@ -74,7 +83,7 @@ def get_seed_users(request):
 
     # tmp user genre
     for i in range(1, 101):
-        user = get_object_or_404(get_user_model(), pk=i)
+        user = get_object_or_404(User, pk=i)
         user_support = UserSupport()
         user_support.set_genre_user(user)
         

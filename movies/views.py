@@ -3,7 +3,7 @@ from pprint import pprint
 # end tmp libraries
 
 from .modules import TmdbMovie
-from .models import Movie, Movie_User
+from .models import Movie, Movie_User_Rating
 from .serializers import MovieListSerializer, MovieSerializer
 
 from django.db.models import Count, Sum
@@ -31,6 +31,15 @@ def get_all_movies(request):
 
 @api_view(['GET'])
 @authentication_classes([])
+@permission_classes([])   
+def get_movie_detail(request, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    serializer = MovieSerializer(movie)
+
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@authentication_classes([])
 @permission_classes([])
 def get_top_rated_movies(request, count):
     movies = Movie.objects.all().order_by('-rating_average')[:count]
@@ -38,15 +47,6 @@ def get_top_rated_movies(request, count):
 
     return Response(serializer.data)
 
-@api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])   
-def get_movie_detail(request, movie_pk):
-    movie = get_object_or_404(Movie, pk=movie_pk)
-    serializer = MovieSerializer(movie)
-    print(serializer.data)
-
-    return Response(serializer.data)
 
 # TMP FUNC TO INSERT DATA / admin =================================================================================================
 def get_all_movies_from_tmdb(request):
@@ -76,7 +76,7 @@ def get_seed_rating(request):
 
     seeder = Seed.seeder()
     
-    seeder.add_entity(Movie_User, 400, {
+    seeder.add_entity(Movie_User_Rating, 400, {
         'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
         'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 28)]),
         'rating': lambda x: rate_numbers[random.randint(0, 9)],
@@ -89,14 +89,14 @@ def get_seed_rating(request):
     return JsonResponse(data)
 
 def count_ratings(request):
-    res = Movie_User.objects.values('movie').order_by('movie').annotate(total=Sum('rating')).order_by('-total')
+    res = Movie_User_Rating.objects.values('movie').order_by('movie').annotate(total=Sum('rating')).order_by('-total')
     
     for obj in res:
         movie_id = obj.get('movie')
         total = obj.get('total')
 
         movie = get_object_or_404(Movie, pk=movie_id)
-        cnt = Movie_User.objects.filter(movie=movie_id).count()
+        cnt = Movie_User_Rating.objects.filter(movie=movie_id).count()
         avg = format(total / cnt, '.1f')
         
         # insert data into db
@@ -105,7 +105,7 @@ def count_ratings(request):
         movie.save()
 
     data = {
-        'res': 'success',
+        'success': True,
     }
 
     return JsonResponse(data)
