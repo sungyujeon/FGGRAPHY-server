@@ -4,15 +4,16 @@
 
 ## INSERT DATA
 
-- `$ python manage.py makemigrations`
-- `$ python manage.py migrate`
-- `http://127.0.0.1:8000/api/v1/movies/TMDB/`  insert TMDB movie datas
-- `http://127.0.0.1:8000/accounts/seed-user/` insert users
-- `http://127.0.0.1:8000/api/v1/movies/seed-review/` insert reviews
-- `http://127.0.0.1:8000/api/v1/movies/seed-comment/` insert comments
-- `http://127.0.0.1:8000/api/v1/movies/seed-rating/` insert ratings in Movie_User_Rating Model
-- `http://127.0.0.1:8000/api/v1/movies/count-ratings/` count ratings and insert avg, count fields in Movie Model
-- `http://127.0.0.1:8000/accounts/calc-ranking/` ranking
+- $ python manage.py makemigrations
+- $ python manage.py migrate
+- http://127.0.0.1:8000/api/v1/movies/TMDB/  insert TMDB movie datas
+- http://127.0.0.1:8000/accounts/seed-user/ insert users
+- http://127.0.0.1:8000/api/v1/movies/seed-review/ insert reviews
+- http://127.0.0.1:8000/api/v1/movies/count-reviews/ count genre reviews
+- http://127.0.0.1:8000/api/v1/movies/seed-comment/ insert comments
+- http://127.0.0.1:8000/api/v1/movies/seed-rating/ insert ratings in Movie_User_Rating Model
+- http://127.0.0.1:8000/api/v1/movies/count-ratings/ count ratings and insert avg, count fields in Movie Model
+- http://127.0.0.1:8000/accounts/calc-ranking/ ranking
 
 
 
@@ -23,6 +24,15 @@
 - 모든 영화 정보 http://127.0.0.1:8000/api/v1/movies/
 - 단일 영화 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/
 - 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/top-rated/{n}/
+
+
+
+##### Genre(장르별 영화)
+
+- 모든 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/
+- 개별 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/10751/datas
+- 개별 장르의 모든 영화 정보 http://127.0.0.1:8000/api/v1/movies/genres/10751/
+- review 많은 순 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/top-reviewed/
 
 
 
@@ -62,10 +72,6 @@
   - 댓글 삭제 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/
 
     postman: DELETE
-
-
-
-
 
 
 
