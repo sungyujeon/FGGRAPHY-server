@@ -6,8 +6,8 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
-from .models import Movie, Movie_User_Rating, Review, Comment, Genre, Genre_User
-from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer
+from .models import Movie, Movie_User_Rating, Review, Comment, Genre, Genre_User, Collection
+from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer
 
 from django.core.paginator import Paginator
 from django.db.models import Count, Sum
@@ -281,6 +281,135 @@ def get_all_genre_top_ranked_users(request):
 
     return Response(res)
 
+
+# collections ====================================================================================
+@api_view(['GET', 'POST'])
+@authentication_classes([])
+@permission_classes([])
+def get_or_create_collections(request):
+    if request.method == 'GET':  # 전체 collections 조회 
+        collections = get_list_or_404(Collection)
+        serializers = ReviewListSerializer(collections, many=True)
+
+        return Response(serializers.data)
+    elif request.method == 'POST':  # collection 생성
+        serializer = CollectionSerializer(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            # test code / request.user가 현재 존재하지 않으므로 1번 user로 임시 대체
+            # user = get_object_or_404(User, pk=request.user.id)
+            user = get_object_or_404(User, pk=1)
+            collection = serializer.save(user=user)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    data = {
+        'success': False,
+    }
+    
+    return JsonResponse(data)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([])
+@permission_classes([])
+def get_or_update_or_delete_collection(request, collection_pk):
+    collection = get_object_or_404(Collection, pk=collection_pk)
+    if request.method == 'GET':  # 단일 collection 조회 
+        serializer = CollectionSerializer(collection)
+
+        return Response(serializer.data)
+    elif request.method == 'PUT':  # collection 수정
+        serializer = CollectionSerializer(collection, data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+    elif request.method == 'DELETE':  # collection 삭제
+        collection.delete()
+
+        data = {
+            'success': True,
+            'message': f'{collection_pk}번 컬렉션 삭제',
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    data = {
+        'success': False,
+    }
+    
+    return JsonResponse(data)
+
+# user-collection movie 추가, 삭제
+@api_view(['POST', 'DELETE'])
+@authentication_classes([])
+@permission_classes([])
+def create_or_delete_collection_movie(request, collection_pk, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    collection = get_object_or_404(Collection, pk=collection_pk)
+
+    data = {
+        'success': True,
+        'message': '',
+    }
+    if request.method == 'POST':  # user-collection movie 추가
+        if not collection.movies.filter(pk=movie_pk).exists():  # collection에 movie가 없으면
+            collection.movies.add(movie)
+            data['message'] = f'{collection_pk}번 컬렉션 {movie.title} 생성'
+        else:
+            return JsonResponse({ 'success': False })
+    elif request.method == 'DELETE':  # user-collection movie 삭제
+        if collection.movies.filter(pk=movie_pk).exists():  # collection에 movie가 있으면
+            collection.movies.remove(movie)
+            data['message'] = f'{collection_pk}번 컬렉션 {movie.title} 삭제'
+        else:
+            return JsonResponse({ 'success': False })
+    
+    return JsonResponse(data)
+
+
+# collection like
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def like_collection(request, collection_pk):
+    collection = get_object_or_404(Collection, pk=collection_pk)
+    ranking = Ranking()
+    try:
+        # if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
+        if collection.like_users.filter(pk=2).exists():  # test code(request.user 없음)
+            # review.like_users.remove(request.user)
+            user = get_object_or_404(User, pk=2)
+            collection.like_users.remove(user)
+            like_status = False
+
+            # review_like 포인트--
+            ranking.decrease_collection_like_point(collection)
+        else: # 좋아요 누름
+            # review.like_users.add(request.user)
+            user = get_object_or_404(User, pk=2)
+            collection.like_users.add(user)
+            like_status = True
+
+            # review_like 포인트++
+            ranking.increase_collection_like_point(collection)
+        
+        data = {
+            'success': True,
+            'like_status': like_status,
+        }
+    except:
+        return JsonResponse({ 'success': False })
+    
+    return JsonResponse(data)
+
+
+
+
+
+
+
 # infinity scroll ================================================================================
 @api_view(['GET'])
 @authentication_classes([])
@@ -295,6 +424,23 @@ def infinite_scroll_review(request):
     serializer = ReviewListSerializer(reviews, many=True)
     
     return Response(serializer.data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # admin============================================================================================================
