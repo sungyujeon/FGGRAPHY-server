@@ -1,7 +1,3 @@
-# tmp libraries
-from pprint import pprint
-# end tmp libraries
-
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -10,20 +6,12 @@ from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, C
 from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer
 
 from django.core.paginator import Paginator
-from django.db.models import Count, Sum
-from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.http import HttpResponse, JsonResponse
-from django_seed import Seed
 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-
-import os
-import random
-import requests
-from dotenv import load_dotenv, dotenv_values
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -503,18 +491,6 @@ def infinite_scroll_review(request):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # admin============================================================================================================
 @api_view(['GET'])
 @authentication_classes([])
@@ -531,150 +507,13 @@ def calc_genre_ranking(request):
     # return Response(serializers.data)
 
 
-# TMP FUNC TO INSERT DATA / admin =================================================================================================
-def get_all_movies_from_tmdb(request):
-    load_dotenv()
-    tmdb_api_key = os.getenv('TMDB_API_KEY')
-
-    for id in range(50):
-        URL = f'https://api.themoviedb.org/3/movie/{id}?api_key={tmdb_api_key}&language=ko&region=KR'
-        res = requests.get(URL)
-
-        # existed movies only
-        if res.status_code == 200:
-            data = res.json()
-            movie = TmdbMovie(data)
-            movie.create_movie()
-            print(f'{movie.id} 생성 완료')
-
-    data = {
-        'success': True,
-    }
-    return JsonResponse(data)
-
-
-def get_seed_rating(request):
-    rate_numbers = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
-    movie_ids = [2,3,5,6,8,9,11,12,13,14,15,16,17,18,19,20,21,22,24,25,26,27,28,30,31,32,33,35,38]
-
-    seeder = Seed.seeder()
-    
-    seeder.add_entity(Movie_User_Rating, 400, {
-        'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
-        'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 28)]),
-        'rating': lambda x: rate_numbers[random.randint(0, 9)],
-    })
-    seeder.execute()
-
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
-
-def set_seed_genre_rating(request):
-    Movie_User_Genre_Rating.objects.all().delete()
-    rate_numbers = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
-    
-    ratings = Movie_User_Rating.objects.all()
-
-    for rating in ratings:
-        movie = get_object_or_404(Movie, pk=rating.movie_id)
-        user = get_object_or_404(User, pk=rating.user_id)
-        
-        genres = movie.genres.all()
-        rating = rate_numbers[random.randint(0, 9)]
-        for genre in genres:
-            Movie_User_Genre_Rating.objects.create(
-                movie = movie,
-                user = user,
-                genre = genre,
-                rating = rating,
-            )
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
-
-def count_ratings(request):
-    res = Movie_User_Rating.objects.values('movie').order_by('movie').annotate(total=Sum('rating')).order_by('-total')
-    
-    for obj in res:
-        movie_id = obj.get('movie')
-        total = obj.get('total')
-
-        movie = get_object_or_404(Movie, pk=movie_id)
-        cnt = Movie_User_Rating.objects.filter(movie=movie_id).count()
-        avg = format(total / cnt, '.1f')
-        
-        # insert data into db
-        movie.rating_average = avg
-        movie.rating_count = cnt
-        movie.save()
-
-    data = {
-        'success': True,
-    }
-
-    return JsonResponse(data)
-
-
-def get_seed_review(request):
-    movie_ids = [2,3,5,6,8,9,11,12,13,14,15,16,17,18,19,20,21,22,24,25,26,27,28,30,31,32,33,35,38]
-    #user 1~100
-
-    seeder = Seed.seeder()
-    
-    seeder.add_entity(Review, 200, {
-        'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
-        'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 28)]),
-    })
-    seeder.execute()
-
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
-
-def count_genre_reviews(request):
-    reviews = get_list_or_404(Review)
-    ranking = Ranking()
-    
-    # 생성된 review 기반 point 증가
-    for review in reviews:
-        ranking.increase_review_point(review)
-
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
-
-
-def get_seed_comment(request):
-    seeder = Seed.seeder()
-    
-    seeder.add_entity(Comment, 500, {
-        'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
-        'review': lambda x: get_object_or_404(Review, pk=random.randint(1, 200)),
-    })
-    seeder.execute()
-
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
-
-def count_genre_comments(request):
-    comments = get_list_or_404(Comment)
-
-    # 생성된 comment 기반 point 증가
-    for comment in comments:
-        review = get_object_or_404(Review, pk=comment.review_id)
-        ranking = Ranking()
-        ranking.increase_comment_point(review)
+# insert data
+from .modules import InsertData
+def insert_data(request):
+    insert = InsertData()
+    insert.my_exec()
     
     data = {
         'success': True
     }
     return JsonResponse(data)
-
-# END TMP FUNC TO INSERT DATA==============================================================================================

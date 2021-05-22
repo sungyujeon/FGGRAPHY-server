@@ -5,22 +5,12 @@
 ## INSERT DATA
 
 - `$ python manage.py makemigrations`
+
 - `$ python manage.py migrate`
-- http://127.0.0.1:8000/api/v1/movies/TMDB/  insert TMDB movie datas
-- http://127.0.0.1:8000/accounts/seed-user/ insert users
-- http://127.0.0.1:8000/api/v1/movies/seed-review/ insert reviews
-- http://127.0.0.1:8000/api/v1/movies/seed-comment/ insert comments
-- http://127.0.0.1:8000/api/v1/movies/seed-rating/ insert ratings in Movie_User_Rating Model
 
+- http://127.0.0.1:8000/api/v1/movies/insert-data/
 
-
-- http://127.0.0.1:8000/api/v1/movies/seed-genre-rating/ count genre ratings in Movie_User_Genre Model
-
-- http://127.0.0.1:8000/api/v1/movies/count-reviews/ count genre reviews
-- http://127.0.0.1:8000/api/v1/movies/count-comments/ count genre comments
-- http://127.0.0.1:8000/api/v1/movies/count-ratings/ count ratings and insert avg, count fields in Movie Model
-- http://127.0.0.1:8000/accounts/calc-ranking/ ranking
-- http://127.0.0.1:8000/api/v1/movies/calc-genre-ranking/ genre ranking
+  `에러 발생 시 movies/modules.py.InsertData.my_exec >> self.get_seed_users() 주석 처리`
 
 
 

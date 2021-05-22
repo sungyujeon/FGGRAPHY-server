@@ -1,18 +1,12 @@
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 from .serializers import UserSerializer, UserListSerializer
 from .modules import UserSupport
-
-# lib for insert data
-import random
-from .modules import UserSupport
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from django_seed import Seed
-from django.http import JsonResponse
-# end lib for insert data
 
 User = get_user_model()
 
@@ -61,14 +55,6 @@ def get_top_ranked_users(request):
 
 
 
-
-
-
-
-
-
-
-
 # admin ================================================================================================
 @api_view(['GET'])
 @authentication_classes([])
@@ -83,26 +69,3 @@ def calc_ranking(request):
     }
     return JsonResponse(data)
     # return Response(serializers.data)
-
-
-# insert data / admin ================================================================================================
-def get_seed_users(request):
-    seeder = Seed.seeder()
-    
-    seeder.add_entity(User, 100, {
-        'point': lambda x: random.randint(1, 100),
-        'ranking': 0,
-        'tier': 0,
-    })
-    seeder.execute()
-
-    # tmp user genre
-    for i in range(1, 101):
-        user = get_object_or_404(User, pk=i)
-        user_support = UserSupport()
-        user_support.set_genre_user(user)
-        
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
