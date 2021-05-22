@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from .serializers import UserSerializer, UserListSerializer
 from .modules import UserSupport
@@ -24,7 +26,7 @@ def signup(request):
 		
 	#2. UserSerializer를 통해 데이터 직렬화
     serializer = UserSerializer(data=request.data)
-    
+    print(serializer)
 	#3. validation 작업 진행 -> password도 같이 직렬화 진행
     if serializer.is_valid(raise_exception=True):
         user = serializer.save()
@@ -41,8 +43,8 @@ def signup(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_top_ranked_users(request):
     user_num = int(request.GET.get('user_num'))
 
@@ -57,8 +59,8 @@ def get_top_ranked_users(request):
 
 # admin ================================================================================================
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def calc_ranking(request):
     user_support = UserSupport()
     users = user_support.set_ranking()

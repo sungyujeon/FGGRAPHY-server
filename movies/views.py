@@ -12,10 +12,13 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_all_movies(request):
     movies = get_list_or_404(Movie)
     serializer = MovieListSerializer(movies, many=True)
@@ -23,8 +26,8 @@ def get_all_movies(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])   
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_movie_detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     serializer = MovieSerializer(movie)
@@ -32,8 +35,8 @@ def get_movie_detail(request, movie_pk):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_top_rated_movies(request):
     movie_count = int(request.GET.get('movie_count'))
     movies = Movie.objects.all().order_by('-rating_average')[:movie_count]
@@ -44,23 +47,22 @@ def get_top_rated_movies(request):
 
 # review ======================================================================
 @api_view(['GET', 'POST'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_or_create_reviews(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     if request.method == 'GET':  # 전체 review 조회 
         reviews = movie.review_set.all()
         serializers = ReviewListSerializer(list(reviews), many=True)
-
+        
         return Response(serializers.data)
     elif request.method == 'POST':  # review 생성
         serializer = ReviewListSerializer(data=request.data)
-
         if serializer.is_valid(raise_exception=True):
             # test code / request.user가 현재 존재하지 않으므로 2번 user로 임시 대체
-            # serializer.save(user=request.user, movie=movie)
-            user = get_object_or_404(User, pk=2)
-            review = serializer.save(user=user, movie=movie)
+            review = serializer.save(user=request.user, movie=movie)
+            # user = get_object_or_404(User, pk=2)
+            # review = serializer.save(user=user, movie=movie)
 
             # review 생성 시 point 증가
             ranking = Ranking()
@@ -75,8 +77,8 @@ def get_or_create_reviews(request, movie_pk):
     return JsonResponse(data)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_or_update_or_delete_review(request, review_pk):
     review = get_object_or_404(Review, pk=review_pk)
     if request.method == 'GET':  # 단일 review 조회 
@@ -111,8 +113,8 @@ def get_or_update_or_delete_review(request, review_pk):
 
 # review like
 @api_view(['POST'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def like_review(request, review_pk):
     review = get_object_or_404(Review, pk=review_pk)
     ranking = Ranking()
@@ -148,8 +150,8 @@ def like_review(request, review_pk):
 
 # comment ======================================================================
 @api_view(['GET', 'POST'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_or_create_comments(request, review_pk):
     review = get_object_or_404(Review, pk=review_pk)
     if request.method == 'GET':  # 전체 comments 조회 
@@ -180,8 +182,8 @@ def get_or_create_comments(request, review_pk):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_or_update_or_delete_comment(request, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)
     if request.method == 'GET':  # 단일 comment 조회 
@@ -218,8 +220,8 @@ def get_or_update_or_delete_comment(request, comment_pk):
 
 # genre별 영화 ======================================================================
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_all_genres(request):  # 전체 장르 정보
     genres = get_list_or_404(Genre)
     serializer = GenreListSerializer(genres, many=True)
@@ -227,8 +229,8 @@ def get_all_genres(request):  # 전체 장르 정보
     return Response(serializer.data)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_genre_datas(request, genre_pk):  # 개별 장르 정보
     genre = get_object_or_404(Genre, pk=genre_pk)
     serializer = GenreSerializer(genre)
@@ -236,8 +238,8 @@ def get_genre_datas(request, genre_pk):  # 개별 장르 정보
     return Response(serializer.data)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_genre_all_movies(request, genre_pk):  # 개별 장르의 모든 영화 정보
     genre = get_object_or_404(Genre, pk=genre_pk)
     movies = genre.movies.all()
@@ -246,8 +248,8 @@ def get_genre_all_movies(request, genre_pk):  # 개별 장르의 모든 영화 �
     return Response(serializer.data)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_top_reviewed_genres(request):  # 장르별 리뷰순
     genres = Genre.objects.all().order_by('-total_review_count')
     serializer = GenreListSerializer(genres, many=True)
@@ -255,8 +257,8 @@ def get_top_reviewed_genres(request):  # 장르별 리뷰순
     return Response(serializer.data)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_all_genre_top_ranked_users(request):
     ranker_nums = int(request.GET.get('ranker_nums'))
     genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
@@ -273,8 +275,8 @@ def get_all_genre_top_ranked_users(request):
 
 # collections ====================================================================================
 @api_view(['GET', 'POST'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_or_create_collections(request):
     if request.method == 'GET':  # 전체 collections 조회 
         collections = get_list_or_404(Collection)
@@ -300,8 +302,8 @@ def get_or_create_collections(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_or_update_or_delete_collection(request, collection_pk):
     collection = get_object_or_404(Collection, pk=collection_pk)
     if request.method == 'GET':  # 단일 collection 조회 
@@ -332,8 +334,8 @@ def get_or_update_or_delete_collection(request, collection_pk):
 
 # user-collection movie 추가, 삭제
 @api_view(['POST', 'DELETE'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def create_or_delete_collection_movie(request, collection_pk, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     collection = get_object_or_404(Collection, pk=collection_pk)
@@ -360,8 +362,8 @@ def create_or_delete_collection_movie(request, collection_pk, movie_pk):
 
 # collection like
 @api_view(['POST'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def like_collection(request, collection_pk):
     collection = get_object_or_404(Collection, pk=collection_pk)
     ranking = Ranking()
@@ -397,8 +399,8 @@ def like_collection(request, collection_pk):
 # rating =============================================================================================================
 # user > movie > rating!
 @api_view(['POST'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def set_rating(request, movie_pk):
     input_rating = float(request.POST.get('rating'))
     # user = request.user
@@ -431,8 +433,8 @@ def set_rating(request, movie_pk):
 
 # users' movies ======================================================================================================
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_user_top_rated_movies(request, username):
     movie_count = int(request.GET.get('movie_count'))
 
@@ -448,8 +450,8 @@ def get_user_top_rated_movies(request, username):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_user_genre_top_rated_movies(request, username, genre_pk):
     movie_count = int(request.GET.get('movie_count'))
 
@@ -472,8 +474,8 @@ def get_user_genre_top_rated_movies(request, username, genre_pk):
 
 # infinity scroll ===========================================================================================
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def infinite_scroll_review(request):
     reviews = get_list_or_404(Review)
     paginator = Paginator(reviews, 9)
@@ -493,8 +495,8 @@ def infinite_scroll_review(request):
 
 # admin============================================================================================================
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def calc_genre_ranking(request):
     ranking = Ranking()
     ranking.set_genre_ranking()
