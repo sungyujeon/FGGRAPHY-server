@@ -18,6 +18,11 @@ urlpatterns = [
     path('genres/<int:genre_pk>/', views.get_genre_all_movies),
     path('genres/top-reviewed/', views.get_top_reviewed_genres),
     path('genres/top-ranked/', views.get_all_genre_top_ranked_users),
+
+    # collections
+    path('collections/', views.get_or_create_collections),
+    path('collections/<int:collection_pk>/', views.get_or_update_or_delete_collection),
+    path('user-collections/<int:collection_pk>/<int:movie_pk>/', views.create_or_delete_collection_movie),
     
     # infinity scroll
     path('infinite-scroll/reviews/', views.infinite_scroll_review),

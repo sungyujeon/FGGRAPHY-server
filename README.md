@@ -4,8 +4,8 @@
 
 ## INSERT DATA
 
-- $ python manage.py makemigrations
-- $ python manage.py migrate
+- `$ python manage.py makemigrations`
+- `$ python manage.py migrate`
 - http://127.0.0.1:8000/api/v1/movies/TMDB/  insert TMDB movie datas
 - http://127.0.0.1:8000/accounts/seed-user/ insert users
 - http://127.0.0.1:8000/api/v1/movies/seed-review/ insert reviews
@@ -55,37 +55,41 @@
 - Review
   - 모든 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
 
-  - 리뷰 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
-
-    postman: data(content) / POST
+  - 리뷰 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/ `method: POST / data: content`
 
   - 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
 
-  - 리뷰 수정 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+  - 리뷰 수정 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/ `method: PUT / data: content`
 
-    postman: data(content) / PUT
-
-  - 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
-
-    postman: DELETE
+  - 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/ `method: DELETE`
 
 - Comment
 
   - 모든 댓글 정보 http://127.0.0.1:8000/api/v1/movies/reviews/{review_pk}/
 
-  - 댓글 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
-
-    postman: data(content) / POST
+  - 댓글 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/ `method: POST / data: content`
 
   - 단일 댓글 정보 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/
 
-  - 댓글 수정 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/
+  - 댓글 수정 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/ `method: PUT / data: content`
 
-    postman: data(content) / PUT
+  - 댓글 삭제 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/ `method: DELETE`
 
-  - 댓글 삭제 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/
 
-    postman: DELETE
+
+
+##### Collection
+
+- 모든 컬렉션 정보 http://127.0.0.1:8000/api/v1/movies/collections/
+- 컬렉션 생성 http://127.0.0.1:8000/api/v1/movies/collections/ `method: POST / data: title`
+
+- 단일 컬렉션 정보 http://127.0.0.1:8000/api/v1/movies/collections/{collection_pk}/
+- 컬렉션 수정 http://127.0.0.1:8000/api/v1/movies/collections/{collection_pk}/ `method: PUT / data: title`
+
+- 컬렉션 삭제 http://127.0.0.1:8000/api/v1/movies/collections/{collection_pk}/ `method: DELETE`
+
+- 컬렉션 내 영화 추가 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/{movie_pk}/ `method: POST`
+- 컬렉션 내 영화 삭제 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/{movie_pk}/ `method: DELETE`
 
 
 

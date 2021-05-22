@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre
+from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -92,4 +92,18 @@ class GenreUserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre_User
+        fields = '__all__'
+
+
+class CollectionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Collection
+        fields = '__all__'
+        read_only_fields = ('user', 'movies', 'like_users',)
+
+class CollectionListSerializer(serializers.ModelSerializer):
+    collections = CollectionSerializer(many=True, read_only=True)
+    class Meta:
+        model = Collection
         fields = '__all__'
