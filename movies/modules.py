@@ -357,6 +357,14 @@ class InsertData():
         self.count_genre_reviews()
         self.count_genre_comments()
         self.count_ratings()
+        self.remove_user()
+    
+    def remove_user(self):
+        user_len = User.objects.all().count()
+        for i in range(101, user_len+1):
+            user = get_object_or_404(User, pk=i)
+            user.delete()
+        print('에러 유저 삭제 완료')
 
     def get_all_movies_from_tmdb(self):
         Movie.objects.all().delete()  # movie 정보 삭제
