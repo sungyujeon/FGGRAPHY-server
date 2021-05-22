@@ -49,13 +49,27 @@ def signup(request):
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
-def get_top_ranked_users(request, count):
-    users = User.objects.all().order_by('ranking')[:count]
+def get_top_ranked_users(request):
+    user_num = int(request.GET.get('user_num'))
+
+    users = User.objects.all().order_by('ranking')[:user_num]
     serializer = UserListSerializer(list(users), many=True)
 
     return Response(serializer.data)
 
-# admin
+
+
+
+
+
+
+
+
+
+
+
+
+# admin ================================================================================================
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
@@ -69,6 +83,7 @@ def calc_ranking(request):
     }
     return JsonResponse(data)
     # return Response(serializers.data)
+
 
 # insert data / admin ================================================================================================
 def get_seed_users(request):

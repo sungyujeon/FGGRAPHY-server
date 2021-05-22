@@ -24,6 +24,14 @@
 
 ## TEST
 
+##### Account
+
+- 전체 랭킹 갱신(admin) http://127.0.0.1:8000/accounts/calc-ranking/
+- 장르별 랭킹 갱신(admin) http://127.0.0.1:8000/api/v1/movies/calc-genre-ranking/
+- 전체 상위 랭커 n명 정보 http://127.0.0.1:8000/accounts/top-ranked/?user_num={user_num}
+
+
+
 ##### Movie
 
 - 모든 영화 정보 http://127.0.0.1:8000/api/v1/movies/
@@ -92,16 +100,6 @@
 - 컬렉션 좋아요 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/like/ `method: POST`
 
 
-
-##### Account
-
-- 전체 랭킹 갱신(admin) http://127.0.0.1:8000/accounts/calc-ranking/
-
-- 장르별 랭킹 갱신(admin) http://127.0.0.1:8000/api/v1/movies/calc-genre-ranking/
-
-- 전체 상위 랭커 n명 정보 http://127.0.0.1:8000/accounts/top-ranked/{n}/
-
-  
 
 ##### Infinite Scroll
 
