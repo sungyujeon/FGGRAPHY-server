@@ -62,6 +62,12 @@ class Movie_User_Rating(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     rating = models.FloatField()
 
+class Movie_User_Genre_Rating(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    rating = models.FloatField()
+
 class Genre_User(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
