@@ -40,13 +40,5 @@ urlpatterns = [
     path('calc-genre-ranking/', views.calc_genre_ranking),
 
     # insert data / admin
-    path('TMDB/', views.get_all_movies_from_tmdb),  # insert data from TMDB
-    path('seed-rating/', views.get_seed_rating),  # insert rating datas
-    path('seed-genre-rating/', views.set_seed_genre_rating),  # set genre rating datas
-    path('seed-review/', views.get_seed_review),  # insert review datas
-    path('seed-comment/', views.get_seed_comment),  # insert comment datas
-    path('count-ratings/', views.count_ratings),  # calculate distincted ratings
-    path('count-reviews/', views.count_genre_reviews),  # count reviews by genres
-    path('count-comments/', views.count_genre_comments),  # count comments by genres
-
+    path('insert-data/', views.insert_data),
 ]
