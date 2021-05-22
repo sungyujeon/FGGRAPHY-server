@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
-from .models import Movie, Movie_User_Rating, Review, Comment, Genre, Genre_User, Collection
+from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection
 from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer
 
 from django.core.paginator import Paginator
@@ -46,8 +46,9 @@ def get_movie_detail(request, movie_pk):
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
-def get_top_rated_movies(request, count):
-    movies = Movie.objects.all().order_by('-rating_average')[:count]
+def get_top_rated_movies(request):
+    movie_count = int(request.GET.get('movie_count'))
+    movies = Movie.objects.all().order_by('-rating_average')[:movie_count]
     serializer = MovieListSerializer(list(movies), many=True)
 
     return Response(serializer.data)
@@ -405,12 +406,83 @@ def like_collection(request, collection_pk):
     return JsonResponse(data)
 
 
+# rating =============================================================================================================
+# user > movie > rating!
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def set_rating(request, movie_pk):
+    input_rating = float(request.POST.get('rating'))
+    # user = request.user
+    user = get_object_or_404(User, pk=86)  # test code
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    
+    data = { 'success': True, 'rating_status': None, }
+    if Movie_User_Rating.objects.filter(user=user, movie=movie).exists():  # 이미 평가를 했다면 수정 or 삭제
+        rating = get_object_or_404(Movie_User_Rating, user=user, movie=movie)
+        curr_rating = rating.rating
+        
+        if input_rating == curr_rating:  # 같으면 삭제
+            rating.delete()
+            data['rating_status'] = 'deleted'
+        else:  # 다르면 수정
+            rating.rating = input_rating
+            rating.save()
+            
+            data['rating_status'] = 'updated'
+    else:  # 평가하지 않았다면 생성
+        rating = Movie_User_Rating.objects.create(user=user, movie=movie, rating=input_rating)
+        data['rating_status'] = 'created'
+
+    return JsonResponse(data)
 
 
 
 
 
-# infinity scroll ================================================================================
+
+# users' movies ======================================================================================================
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_user_top_rated_movies(request, username):
+    movie_count = int(request.GET.get('movie_count'))
+
+    user = get_object_or_404(User, username=username)
+    ratings = Movie_User_Rating.objects.filter(user=user).order_by('-rating')[:movie_count]
+    
+    movies = []
+    for rating in ratings:
+        movie = get_object_or_404(Movie, pk=rating.movie_id)
+        movies.append(movie)
+    
+    serializer = MovieListSerializer(movies, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_user_genre_top_rated_movies(request, username, genre_pk):
+    movie_count = int(request.GET.get('movie_count'))
+
+    user = get_object_or_404(User, username=username)
+    genre = get_object_or_404(Genre, pk=genre_pk)
+    ratings = Movie_User_Genre_Rating.objects.filter(user=user, genre=genre).order_by('-rating')[:movie_count]
+
+    movies = []
+    for rating in ratings:
+        movie = get_object_or_404(Movie, pk=rating.movie_id)
+        movies.append(movie)
+    
+    serializer = MovieListSerializer(movies, many=True)
+    return Response(serializer.data)
+
+
+
+
+
+
+# infinity scroll ===========================================================================================
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
@@ -494,6 +566,30 @@ def get_seed_rating(request):
     })
     seeder.execute()
 
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+def set_seed_genre_rating(request):
+    Movie_User_Genre_Rating.objects.all().delete()
+    rate_numbers = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
+    
+    ratings = Movie_User_Rating.objects.all()
+
+    for rating in ratings:
+        movie = get_object_or_404(Movie, pk=rating.movie_id)
+        user = get_object_or_404(User, pk=rating.user_id)
+        
+        genres = movie.genres.all()
+        rating = rate_numbers[random.randint(0, 9)]
+        for genre in genres:
+            Movie_User_Genre_Rating.objects.create(
+                movie = movie,
+                user = user,
+                genre = genre,
+                rating = rating,
+            )
     data = {
         'success': True
     }

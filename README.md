@@ -14,6 +14,8 @@
 
 
 
+- http://127.0.0.1:8000/api/v1/movies/seed-genre-rating/ count genre ratings in Movie_User_Genre Model
+
 - http://127.0.0.1:8000/api/v1/movies/count-reviews/ count genre reviews
 - http://127.0.0.1:8000/api/v1/movies/count-comments/ count genre comments
 - http://127.0.0.1:8000/api/v1/movies/count-ratings/ count ratings and insert avg, count fields in Movie Model
@@ -36,7 +38,9 @@
 
 - 모든 영화 정보 http://127.0.0.1:8000/api/v1/movies/
 - 단일 영화 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/
-- 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/top-rated/{n}/
+- 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/top-rated/?movie_count={movie_count}
+- 유저별 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/users/{username}/top-rated/?movie_count={movie_count}
+- 유저 장르별 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/users/{username}/genres/{genre_id}/top-rated/?movie_count={movie_count}
 
 
 
