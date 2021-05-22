@@ -369,6 +369,42 @@ def create_or_delete_collection_movie(request, collection_pk, movie_pk):
     return JsonResponse(data)
 
 
+# collection like
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def like_collection(request, collection_pk):
+    collection = get_object_or_404(Collection, pk=collection_pk)
+    ranking = Ranking()
+    try:
+        # if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
+        if collection.like_users.filter(pk=2).exists():  # test code(request.user 없음)
+            # review.like_users.remove(request.user)
+            user = get_object_or_404(User, pk=2)
+            collection.like_users.remove(user)
+            like_status = False
+
+            # review_like 포인트--
+            ranking.decrease_collection_like_point(collection)
+        else: # 좋아요 누름
+            # review.like_users.add(request.user)
+            user = get_object_or_404(User, pk=2)
+            collection.like_users.add(user)
+            like_status = True
+
+            # review_like 포인트++
+            ranking.increase_collection_like_point(collection)
+        
+        data = {
+            'success': True,
+            'like_status': like_status,
+        }
+    except:
+        return JsonResponse({ 'success': False })
+    
+    return JsonResponse(data)
+
+
 
 
 

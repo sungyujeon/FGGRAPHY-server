@@ -54,15 +54,14 @@
 
 - Review
   - 모든 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
-
   - 리뷰 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/ `method: POST / data: content`
-
+  
   - 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
-
   - 리뷰 수정 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/ `method: PUT / data: content`
 
   - 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/ `method: DELETE`
-
+  - 리뷰 좋아요 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/like/ `method: POST`
+  
 - Comment
 
   - 모든 댓글 정보 http://127.0.0.1:8000/api/v1/movies/reviews/{review_pk}/
@@ -90,6 +89,7 @@
 
 - 컬렉션 내 영화 추가 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/{movie_pk}/ `method: POST`
 - 컬렉션 내 영화 삭제 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/{movie_pk}/ `method: DELETE`
+- 컬렉션 좋아요 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/like/ `method: POST`
 
 
 

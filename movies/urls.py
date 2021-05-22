@@ -23,6 +23,7 @@ urlpatterns = [
     path('collections/', views.get_or_create_collections),
     path('collections/<int:collection_pk>/', views.get_or_update_or_delete_collection),
     path('user-collections/<int:collection_pk>/<int:movie_pk>/', views.create_or_delete_collection_movie),
+    path('', views.like_collection),
     
     # infinity scroll
     path('infinite-scroll/reviews/', views.infinite_scroll_review),

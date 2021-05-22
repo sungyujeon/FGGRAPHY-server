@@ -234,7 +234,6 @@ class Ranking():
     # review_like
     def increase_review_like_point(self, review):
         user = get_object_or_404(User, pk=review.user_id)
-        print(user)
         movie = get_object_or_404(Movie, pk=review.movie_id)
 
         genres = movie.genres.all()
@@ -294,6 +293,20 @@ class Ranking():
         user.point -= 1
         user.save()
 
+
+    # collection_like
+    def increase_collection_like_point(self, collection):
+        user = get_object_or_404(User, pk=collection.user_id)
+        user.point += 1
+        user.save()
+
+    def decrease_collection_like_point(self, collection):
+        user = get_object_or_404(User, pk=collection.user_id)
+        user.point -= 1
+        user.save()
+
+
+
     # genre_user set_ranking
     def set_genre_ranking(self):
         genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
@@ -320,3 +333,5 @@ class Ranking():
                         tmp_i = i+1
                         tmp_p = p
         return
+
+    
