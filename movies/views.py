@@ -3,8 +3,9 @@ User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
 from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection
-from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer
+from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
 
+from django.core import serializers
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.http import HttpResponse, JsonResponse
@@ -43,6 +44,33 @@ def get_top_rated_movies(request):
 
     return Response(serializer.data)
 
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_top_ranked_users_movies(request):
+    try:
+        ranker_num = int(request.GET.get('ranker_num'))
+    except:
+        ranker_num = 5
+    try:
+        movie_num = int(request.GET.get('movie_num'))
+    except:
+        movie_num = 10
+
+    data = []
+    users = User.objects.all().order_by('ranking')[:ranker_num]
+    for i in range(len(users)):
+        ratings = Movie_User_Rating.objects.filter(user=users[i]).order_by('-rating')[:movie_num]
+        serializer = MovieUserRatingSerializer(ratings, many=True)
+        tmp = {
+            'username': users[i].username,
+            'movies': serializer.data,
+        }
+        data.append(tmp)
+    
+    return JsonResponse(data, safe=False)
+
+
 
 # review ======================================================================
 @api_view(['GET', 'POST'])
@@ -52,16 +80,14 @@ def get_or_create_reviews(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     if request.method == 'GET':  # 전체 review 조회 
         reviews = movie.review_set.all()
-        serializers = ReviewListSerializer(list(reviews), many=True)
+        serializers = ReviewSerializer(list(reviews), many=True)
+        print(serializers)
         
         return Response(serializers.data)
     elif request.method == 'POST':  # review 생성
-        serializer = ReviewListSerializer(data=request.data)
+        serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            # test code / request.user가 현재 존재하지 않으므로 2번 user로 임시 대체
             review = serializer.save(user=request.user, movie=movie)
-            # user = get_object_or_404(User, pk=2)
-            # review = serializer.save(user=user, movie=movie)
 
             # review 생성 시 point 증가
             ranking = Ranking()
@@ -85,7 +111,7 @@ def get_or_update_or_delete_review(request, review_pk):
 
         return Response(serializers.data)
     elif request.method == 'PUT':  # review 수정
-        serializer = ReviewListSerializer(review, data=request.data)
+        serializer = ReviewSerializer(review, data=request.data)
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -110,6 +136,23 @@ def get_or_update_or_delete_review(request, review_pk):
     
     return JsonResponse(data)
 
+# latest review list
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user_latest_reviews(request, username):
+    try:
+        review_num = int(request.GET.get('review_num'))
+    except:
+        review_num = 10
+
+    user = get_object_or_404(User, username=username)
+    reviews = Review.objects.filter(user=user).order_by('updated_at')[:review_num]
+    
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
+
+
 # review like
 @api_view(['POST'])
 @authentication_classes([JSONWebTokenAuthentication])
@@ -119,19 +162,14 @@ def like_review(request, movie_pk, review_pk):
     ranking = Ranking()
     like_status = False
     try:
-        # if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
-        if review.like_users.filter(pk=5).exists():  # test code(request.user 없음)
-            # review.like_users.remove(request.user)
-            user = get_object_or_404(User, pk=5)
-            review.like_users.remove(user)
+        if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
+            review.like_users.remove(request.user)
             like_status = False
 
             # review_like 포인트--
             ranking.decrease_review_like_point(review)
         else: # 좋아요 누름
-            # review.like_users.add(request.user)
-            user = get_object_or_404(User, pk=5)
-            review.like_users.add(user)
+            review.like_users.add(request.user)
             like_status = True
 
             # review_like 포인트++
@@ -161,12 +199,8 @@ def get_or_create_comments(request, review_pk):
     elif request.method == 'POST':  # comment 생성
         serializer = CommentListSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            # serializer.save(user=request.user, review=review)
+            serializer.save(user=request.user, review=review)
             
-            # test
-            user = get_object_or_404(User, pk=1)
-            serializer.save(user=user, review=review)
-
             # comment 받은 사람 point++
             ranking = Ranking()
             ranking.increase_comment_point(review)
@@ -279,16 +313,14 @@ def get_all_genre_top_ranked_users(request):
 def get_or_create_collections(request):
     if request.method == 'GET':  # 전체 collections 조회 
         collections = get_list_or_404(Collection)
-        serializers = ReviewListSerializer(collections, many=True)
+        serializers = ReviewSerializer(collections, many=True)
 
         return Response(serializers.data)
     elif request.method == 'POST':  # collection 생성
         serializer = CollectionSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            # test code / request.user가 현재 존재하지 않으므로 1번 user로 임시 대체
-            # user = get_object_or_404(User, pk=request.user.id)
-            user = get_object_or_404(User, pk=1)
+            user = get_object_or_404(User, pk=request.user.id)
             collection = serializer.save(user=user)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -367,19 +399,14 @@ def like_collection(request, collection_pk):
     collection = get_object_or_404(Collection, pk=collection_pk)
     ranking = Ranking()
     try:
-        # if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
-        if collection.like_users.filter(pk=2).exists():  # test code(request.user 없음)
-            # review.like_users.remove(request.user)
-            user = get_object_or_404(User, pk=2)
-            collection.like_users.remove(user)
+        if collection.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
+            collection.like_users.remove(request.user)
             like_status = False
 
             # review_like 포인트--
             ranking.decrease_collection_like_point(collection)
         else: # 좋아요 누름
-            # review.like_users.add(request.user)
-            user = get_object_or_404(User, pk=2)
-            collection.like_users.add(user)
+            collection.like_users.add(request.user)
             like_status = True
 
             # review_like 포인트++
@@ -402,8 +429,7 @@ def like_collection(request, collection_pk):
 @permission_classes([IsAuthenticated])
 def set_rating(request, movie_pk):
     input_rating = float(request.POST.get('rating'))
-    # user = request.user
-    user = get_object_or_404(User, pk=86)  # test code
+    user = request.user
     movie = get_object_or_404(Movie, pk=movie_pk)
     
     data = { 'success': True, 'rating_status': None, }
@@ -485,7 +511,7 @@ def infinite_scroll_review(request, pk):
     page_num = request.GET.get('page_num')
 
     reviews = paginator.get_page(page_num)
-    serializer = ReviewListSerializer(reviews, many=True)
+    serializer = ReviewSerializer(reviews, many=True)
     
     return Response(serializer.data)
 
@@ -497,18 +523,16 @@ def infinite_scroll_review(request, pk):
 
 # admin============================================================================================================
 @api_view(['GET'])
-@authentication_classes([JSONWebTokenAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
 def calc_genre_ranking(request):
     ranking = Ranking()
     ranking.set_genre_ranking()
-    # serializers = GenreUserListSerializer(list(users), many=True)
     
     data = {
         'success': True
     }
     return JsonResponse(data)
-    # return Response(serializers.data)
 
 
 # insert data

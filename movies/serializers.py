@@ -1,5 +1,15 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection
+
+from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection, Movie_User_Rating
+
+User = get_user_model()
+
+class UserSerailizaer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username',)
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,21 +70,15 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('user', 'review',)
 
-class ReviewListSerializer(serializers.ModelSerializer):
-    like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
-    comments = CommentListSerializer(many=True, read_only=True)
-    class Meta:
-        model = Review
-        fields = '__all__'
-        read_only_fields = ('movie', 'user', 'like_users',)
 
 class ReviewSerializer(serializers.ModelSerializer):
     like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
-    comments = CommentListSerializer(many=True, read_only=True)
+    user = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
     class Meta:
         model = Review
         fields = '__all__'
-        read_only_fields = ('movie', 'user', 'like_users',)
+        read_only_fields = ('movie', 'user', 'like_users', 'like_users_count')
 
 class GenreSerializer(serializers.ModelSerializer):
     
@@ -107,3 +111,10 @@ class CollectionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         fields = '__all__'
+
+
+class MovieUserRatingSerializer(serializers.ModelSerializer):
+    movie = MovieSerializer(read_only=True)
+    class Meta:
+        model = Movie_User_Rating
+        fields = ('rating', 'movie', )

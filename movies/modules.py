@@ -348,8 +348,8 @@ from django.db.models import Sum
 from .models import Comment, Movie_User_Rating, Movie_User_Genre_Rating, Review
 class InsertData():
     def my_exec(self):
-        # self.get_all_movies_from_tmdb()
-        # self.get_seed_users()
+        self.get_all_movies_from_tmdb()
+        self.get_seed_users()
         self.get_seed_review()
         self.get_seed_comment()
         self.get_seed_rating()
@@ -389,8 +389,8 @@ class InsertData():
     
         seeder.add_entity(User, 100, {
             'point': lambda x: random.randint(1, 100),
-            'ranking': 0,
-            'tier': 0,
+            'ranking': None,
+            'tier': None,
         })
         seeder.execute()
 

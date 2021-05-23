@@ -6,12 +6,16 @@ urlpatterns = [
     # 영화 관련
     path('', views.get_all_movies),
     path('top-rated/', views.get_top_rated_movies),
+    path('top-ranked/', views.get_top_ranked_users_movies),
     path('<int:movie_pk>/', views.get_movie_detail),
     path('<int:movie_pk>/reviews/', views.get_or_create_reviews),
-    path('reviews/<int:review_pk>/', views.get_or_update_or_delete_review),
     path('<int:movie_pk>/reviews/<int:review_pk>/like/', views.like_review),
+    path('reviews/<int:review_pk>/', views.get_or_update_or_delete_review),
     path('reviews/<int:review_pk>/comments/', views.get_or_create_comments),
     path('comments/<int:comment_pk>/', views.get_or_update_or_delete_comment),
+
+    # user-review
+    path('reviews/<str:username>/latest/', views.get_user_latest_reviews),
     
     # 평가하기
     path('<int:movie_pk>/rating/', views.set_rating),

@@ -16,11 +16,36 @@
 
 ## TEST
 
+##### Amdin
+
+- 전체 랭킹 갱신 http://127.0.0.1:8000/accounts/calc-ranking/
+- 장르별 랭킹 갱신 http://127.0.0.1:8000/api/v1/movies/calc-genre-ranking/
+
+
+
 ##### Account
 
-- 전체 랭킹 갱신(admin) http://127.0.0.1:8000/accounts/calc-ranking/
-- 장르별 랭킹 갱신(admin) http://127.0.0.1:8000/api/v1/movies/calc-genre-ranking/
+- User별 최근 리뷰 n개 조회 http://127.0.0.1:8000/api/v1/movies/reviews/{username}/latest/?review_num={review_num}
+
+  <small>>> parameter 넣지 않으면 10개로 설정</small>
+
+- 
+
+
+
+##### Ranking
+
 - 전체 상위 랭커 n명 정보 http://127.0.0.1:8000/accounts/top-ranked/?user_num={user_num}
+
+- 전체 상위 랭커 n명의 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/top-ranked/?ranker_num={ranker_num}&movie_num={movie_num}
+
+  <small>>> parameter 넣지 않으면 5명, 10개로 설정</small>
+
+- 전체 장르별 랭커 n명 출력 http://127.0.0.1:8000/api/v1/movies/genres/top-ranked/?ranker_nums={ranker_nums}
+
+  `type: json`, `key(genre_id): value(rankers object list)`
+
+  key는 genre_id, value는 랭킹 n등 안에 드는 사람들의 genre_user 객체 리스트
 
 
 
@@ -30,7 +55,7 @@
 - 단일 영화 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/
 - 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/top-rated/?movie_count={movie_count}
 - 유저별 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/users/{username}/top-rated/?movie_count={movie_count}
-- 유저 장르별 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/users/{username}/genres/{genre_id}/top-rated/?movie_count={movie_count}
+- 유저별 장르별 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/users/{username}/genres/{genre_id}/top-rated/?movie_count={movie_count}
 
 
 
@@ -44,11 +69,6 @@
 
 - review 많은 순 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/top-reviewed/
 
-- 전체 장르별 랭커 n명 출력 http://127.0.0.1:8000/api/v1/movies/genres/top-ranked/?ranker_nums={ranker_nums}
-
-  `type: json`, `key(genre_id): value(rankers object list)`
-
-  key는 genre_id, value는 랭킹 n등 안에 드는 사람들의 genre_user 객체 리스트
 
 
 
