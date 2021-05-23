@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
@@ -7,7 +8,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-from .serializers import UserSerializer, UserListSerializer
+from .serializers import UserSerializer, UserDataSerializer
 from .modules import UserSupport
 
 User = get_user_model()
@@ -26,10 +27,11 @@ def signup(request):
 		
 	#2. UserSerializer를 통해 데이터 직렬화
     serializer = UserSerializer(data=request.data)
-    print(serializer)
+
 	#3. validation 작업 진행 -> password도 같이 직렬화 진행
     if serializer.is_valid(raise_exception=True):
         user = serializer.save()
+        
         #4. 비밀번호 해싱 후 
         user.set_password(request.data.get('password'))
         user.save()
@@ -42,6 +44,46 @@ def signup(request):
         # password는 직렬화 과정에는 포함 되지만 → 표현(response)할 때는 나타나지 않는다.
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_or_update_or_delete_user(request, username):
+    user = get_object_or_404(User, username=username)
+    if request.method == 'GET':
+        serializer = UserDataSerializer(user)
+        return Response(serializer.data)
+    elif request.user == user:  # 로그인한 사용자와 수정/삭제하려는 사용자가 일치할 때
+        if request.method == 'PUT':
+            print('???????? 왜 회원정보 수정이 안되는거야...')
+            
+            # serializer = UserSerializer(user, data=request.data)
+            # print(serializer)
+            # if serializer.is_valid(raise_exception=True):
+            #     serializer.save()
+            #     user.set_password(request.data.get('password'))
+            #     user.save()
+            #     return Response(serializer.data)
+            data = {
+                'success': False,
+                'status': 'updated',
+            }
+            return JsonResponse(data)
+        elif request.method == 'DELETE':
+            user.delete()
+            data = {
+                'success': True,
+                'status': 'deleted',
+            }
+            return JsonResponse(data)
+    else:
+        data = {
+            'success': False,
+            'message': '사용자가 일치하지 않습니다.',
+        }
+        return JsonResponse(data)
+
+# ranking
 @api_view(['GET'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -49,14 +91,11 @@ def get_top_ranked_users(request):
     user_num = int(request.GET.get('user_num'))
 
     users = User.objects.all().order_by('ranking')[:user_num]
-    serializer = UserListSerializer(list(users), many=True)
+    serializer = UserDataSerializer(list(users), many=True)
 
     return Response(serializer.data)
 
-
-
-
-
+        
 # admin ================================================================================================
 @api_view(['GET'])
 @authentication_classes([])
