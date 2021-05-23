@@ -58,10 +58,7 @@ def get_or_create_reviews(request, movie_pk):
     elif request.method == 'POST':  # review 생성
         serializer = ReviewListSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            # test code / request.user가 현재 존재하지 않으므로 2번 user로 임시 대체
             review = serializer.save(user=request.user, movie=movie)
-            # user = get_object_or_404(User, pk=2)
-            # review = serializer.save(user=user, movie=movie)
 
             # review 생성 시 point 증가
             ranking = Ranking()
@@ -119,19 +116,14 @@ def like_review(request, movie_pk, review_pk):
     ranking = Ranking()
     like_status = False
     try:
-        # if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
-        if review.like_users.filter(pk=5).exists():  # test code(request.user 없음)
-            # review.like_users.remove(request.user)
-            user = get_object_or_404(User, pk=5)
-            review.like_users.remove(user)
+        if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
+            review.like_users.remove(request.user)
             like_status = False
 
             # review_like 포인트--
             ranking.decrease_review_like_point(review)
         else: # 좋아요 누름
-            # review.like_users.add(request.user)
-            user = get_object_or_404(User, pk=5)
-            review.like_users.add(user)
+            review.like_users.add(request.user)
             like_status = True
 
             # review_like 포인트++
@@ -161,12 +153,8 @@ def get_or_create_comments(request, review_pk):
     elif request.method == 'POST':  # comment 생성
         serializer = CommentListSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            # serializer.save(user=request.user, review=review)
+            serializer.save(user=request.user, review=review)
             
-            # test
-            user = get_object_or_404(User, pk=1)
-            serializer.save(user=user, review=review)
-
             # comment 받은 사람 point++
             ranking = Ranking()
             ranking.increase_comment_point(review)
@@ -286,9 +274,7 @@ def get_or_create_collections(request):
         serializer = CollectionSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            # test code / request.user가 현재 존재하지 않으므로 1번 user로 임시 대체
-            # user = get_object_or_404(User, pk=request.user.id)
-            user = get_object_or_404(User, pk=1)
+            user = get_object_or_404(User, pk=request.user.id)
             collection = serializer.save(user=user)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -367,19 +353,14 @@ def like_collection(request, collection_pk):
     collection = get_object_or_404(Collection, pk=collection_pk)
     ranking = Ranking()
     try:
-        # if review.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
-        if collection.like_users.filter(pk=2).exists():  # test code(request.user 없음)
-            # review.like_users.remove(request.user)
-            user = get_object_or_404(User, pk=2)
-            collection.like_users.remove(user)
+        if collection.like_users.filter(pk=request.user.pk).exists(): # 좋아요 취소
+            collection.like_users.remove(request.user)
             like_status = False
 
             # review_like 포인트--
             ranking.decrease_collection_like_point(collection)
         else: # 좋아요 누름
-            # review.like_users.add(request.user)
-            user = get_object_or_404(User, pk=2)
-            collection.like_users.add(user)
+            collection.like_users.add(request.user)
             like_status = True
 
             # review_like 포인트++
@@ -402,8 +383,7 @@ def like_collection(request, collection_pk):
 @permission_classes([IsAuthenticated])
 def set_rating(request, movie_pk):
     input_rating = float(request.POST.get('rating'))
-    # user = request.user
-    user = get_object_or_404(User, pk=86)  # test code
+    user = request.user
     movie = get_object_or_404(Movie, pk=movie_pk)
     
     data = { 'success': True, 'rating_status': None, }
