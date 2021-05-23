@@ -12,7 +12,6 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
@@ -115,7 +114,7 @@ def get_or_update_or_delete_review(request, review_pk):
 @api_view(['POST'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
-def like_review(request, review_pk):
+def like_review(request, movie_pk, review_pk):
     review = get_object_or_404(Review, pk=review_pk)
     ranking = Ranking()
     like_status = False
@@ -476,8 +475,11 @@ def get_user_genre_top_rated_movies(request, username, genre_pk):
 @api_view(['GET'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
-def infinite_scroll_review(request):
-    reviews = get_list_or_404(Review)
+def infinite_scroll_review(request, pk):
+    # review가 달린 영화가 어떤 영화인지 알기위해
+    movie = get_object_or_404(Movie, pk=pk)
+    # 해당 영화에 관련된 리뷰만 가져오기
+    reviews = Review.objects.filter(movie=movie)
     paginator = Paginator(reviews, 9)
     
     page_num = request.GET.get('page_num')

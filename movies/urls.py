@@ -9,7 +9,7 @@ urlpatterns = [
     path('<int:movie_pk>/', views.get_movie_detail),
     path('<int:movie_pk>/reviews/', views.get_or_create_reviews),
     path('reviews/<int:review_pk>/', views.get_or_update_or_delete_review),
-    path('reviews/<int:review_pk>/like/', views.like_review),
+    path('<int:movie_pk>/reviews/<int:review_pk>/like/', views.like_review),
     path('reviews/<int:review_pk>/comments/', views.get_or_create_comments),
     path('comments/<int:comment_pk>/', views.get_or_update_or_delete_comment),
     
@@ -34,7 +34,8 @@ urlpatterns = [
     path('user-collections/<int:collection_pk>/like/', views.like_collection),
     
     # infinity scroll
-    path('infinite-scroll/reviews/', views.infinite_scroll_review),
+    # 어떤 영화인지 pk값이 필요해서 추가함
+    path('infinite-scroll/reviews/<int:pk>', views.infinite_scroll_review),
 
     # admin
     path('calc-genre-ranking/', views.calc_genre_ranking),
