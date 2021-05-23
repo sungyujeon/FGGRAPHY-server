@@ -10,8 +10,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'password',)
 
-class UserListSerializer(serializers.ModelSerializer):
-
+class UserDataSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(read_only=True)
     class Meta:
         model = User
-        fields = ('id', 'username', 'point', 'ranking')
+        fields = ('username', 'password', 'point', 'ranking', 'tier',)
+        read_only_field = ('password', )
