@@ -3,7 +3,7 @@ User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
 from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection
-from .serializers import MovieListSerializer, MovieSerializer, ReviewListSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer
+from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer
 
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, get_list_or_404
@@ -52,12 +52,12 @@ def get_or_create_reviews(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     if request.method == 'GET':  # 전체 review 조회 
         reviews = movie.review_set.all()
-        serializers = ReviewListSerializer(list(reviews), many=True)
+        serializers = ReviewSerializer(list(reviews), many=True)
         print(serializers)
         
         return Response(serializers.data)
     elif request.method == 'POST':  # review 생성
-        serializer = ReviewListSerializer(data=request.data)
+        serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             review = serializer.save(user=request.user, movie=movie)
 
@@ -83,7 +83,7 @@ def get_or_update_or_delete_review(request, review_pk):
 
         return Response(serializers.data)
     elif request.method == 'PUT':  # review 수정
-        serializer = ReviewListSerializer(review, data=request.data)
+        serializer = ReviewSerializer(review, data=request.data)
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -268,7 +268,7 @@ def get_all_genre_top_ranked_users(request):
 def get_or_create_collections(request):
     if request.method == 'GET':  # 전체 collections 조회 
         collections = get_list_or_404(Collection)
-        serializers = ReviewListSerializer(collections, many=True)
+        serializers = ReviewSerializer(collections, many=True)
 
         return Response(serializers.data)
     elif request.method == 'POST':  # collection 생성
@@ -466,7 +466,7 @@ def infinite_scroll_review(request, pk):
     page_num = request.GET.get('page_num')
 
     reviews = paginator.get_page(page_num)
-    serializer = ReviewListSerializer(reviews, many=True)
+    serializer = ReviewSerializer(reviews, many=True)
     
     return Response(serializer.data)
 

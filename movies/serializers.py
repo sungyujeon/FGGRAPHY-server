@@ -70,6 +70,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('user', 'review',)
 
+
 class ReviewListSerializer(serializers.ModelSerializer):
     like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
     user = serializers.SlugRelatedField(read_only=True, slug_field='username')
@@ -78,14 +79,6 @@ class ReviewListSerializer(serializers.ModelSerializer):
         model = Review
         fields = '__all__'
         read_only_fields = ('movie', 'user', 'like_users', 'like_users_count')
-
-class ReviewSerializer(serializers.ModelSerializer):
-    like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
-    comments = CommentListSerializer(many=True, read_only=True)
-    class Meta:
-        model = Review
-        fields = '__all__'
-        read_only_fields = ('movie', 'user', 'like_users',)
 
 class GenreSerializer(serializers.ModelSerializer):
     
