@@ -53,6 +53,7 @@ def get_or_create_reviews(request, movie_pk):
     if request.method == 'GET':  # 전체 review 조회 
         reviews = movie.review_set.all()
         serializers = ReviewListSerializer(list(reviews), many=True)
+        print(serializers)
         
         return Response(serializers.data)
     elif request.method == 'POST':  # review 생성
