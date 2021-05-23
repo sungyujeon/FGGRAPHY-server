@@ -3,8 +3,9 @@ User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
 from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection
-from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer
+from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
 
+from django.core import serializers
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.http import HttpResponse, JsonResponse
@@ -47,13 +48,28 @@ def get_top_rated_movies(request):
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_top_ranked_users_movies(request):
-    # top_ranked_users n명, 각 유저의 top_rated_movies n개
-    ranker_num = request.GET.get('ranker_num')
-    movie_num = request.GET.get('movie_num')
+    try:
+        ranker_num = int(request.GET.get('ranker_num'))
+    except:
+        ranker_num = 5
+    try:
+        movie_num = int(request.GET.get('movie_num'))
+    except:
+        movie_num = 5
 
-    User.objects.all().order_by('-')    
+    data = []
+    users = User.objects.all().order_by('ranking')[:ranker_num]
+    for i in range(len(users)):
+        ratings = Movie_User_Rating.objects.filter(user=users[i]).order_by('-rating')[:movie_num]
+        serializer = MovieUserRatingSerializer(ratings, many=True)
+        tmp = {
+            'username': users[i].username,
+            'movies': serializer.data,
+        }
+        data.append(tmp)
     
-    pass
+    return JsonResponse(data, safe=False)
+
 
 
 # review ======================================================================

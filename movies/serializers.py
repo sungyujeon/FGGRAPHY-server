@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection
+from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection, Movie_User_Rating
 
 User = get_user_model()
 
@@ -111,3 +111,10 @@ class CollectionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         fields = '__all__'
+
+
+class MovieUserRatingSerializer(serializers.ModelSerializer):
+    movie = MovieSerializer(read_only=True)
+    class Meta:
+        model = Movie_User_Rating
+        fields = ('rating', 'movie', )

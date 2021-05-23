@@ -21,6 +21,7 @@
 - 전체 랭킹 갱신(admin) http://127.0.0.1:8000/accounts/calc-ranking/
 - 장르별 랭킹 갱신(admin) http://127.0.0.1:8000/api/v1/movies/calc-genre-ranking/
 - 전체 상위 랭커 n명 정보 http://127.0.0.1:8000/accounts/top-ranked/?user_num={user_num}
+- 상위 랭커 n명의 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/top-ranked/?ranker_num={ranker_num}&movie_num={movie_num}
 
 
 
