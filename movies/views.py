@@ -55,7 +55,7 @@ def get_top_ranked_users_movies(request):
     try:
         movie_num = int(request.GET.get('movie_num'))
     except:
-        movie_num = 5
+        movie_num = 10
 
     data = []
     users = User.objects.all().order_by('ranking')[:ranker_num]
@@ -135,6 +135,23 @@ def get_or_update_or_delete_review(request, review_pk):
     }
     
     return JsonResponse(data)
+
+# latest review list
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user_latest_reviews(request, username):
+    try:
+        review_num = int(request.GET.get('review_num'))
+    except:
+        review_num = 10
+
+    user = get_object_or_404(User, username=username)
+    reviews = Review.objects.filter(user=user).order_by('updated_at')[:review_num]
+    
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
+
 
 # review like
 @api_view(['POST'])
