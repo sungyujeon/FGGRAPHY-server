@@ -142,4 +142,6 @@ REST_FRAMEWORK = {
 }
 
 # django rest framework jwt expiration extension
-JWT_EXPIRATION_DELTA = datetime.timedelta(days=1)
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1)
+}
