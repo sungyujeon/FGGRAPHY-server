@@ -389,8 +389,8 @@ class InsertData():
     
         seeder.add_entity(User, 100, {
             'point': lambda x: random.randint(1, 100),
-            'ranking': 0,
-            'tier': 0,
+            'ranking': None,
+            'tier': None,
         })
         seeder.execute()
 

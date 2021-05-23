@@ -59,8 +59,8 @@ def get_top_ranked_users(request):
 
 # admin ================================================================================================
 @api_view(['GET'])
-@authentication_classes([JSONWebTokenAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
 def calc_ranking(request):
     user_support = UserSupport()
     users = user_support.set_ranking()

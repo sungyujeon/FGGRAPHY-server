@@ -71,7 +71,7 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ('user', 'review',)
 
 
-class ReviewListSerializer(serializers.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
     like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
     user = serializers.SlugRelatedField(read_only=True, slug_field='username')
 

@@ -43,6 +43,18 @@ def get_top_rated_movies(request):
 
     return Response(serializer.data)
 
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_top_ranked_users_movies(request):
+    # top_ranked_users n명, 각 유저의 top_rated_movies n개
+    ranker_num = request.GET.get('ranker_num')
+    movie_num = request.GET.get('movie_num')
+
+    User.objects.all().order_by('-')    
+    
+    pass
+
 
 # review ======================================================================
 @api_view(['GET', 'POST'])
@@ -478,18 +490,16 @@ def infinite_scroll_review(request, pk):
 
 # admin============================================================================================================
 @api_view(['GET'])
-@authentication_classes([JSONWebTokenAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
 def calc_genre_ranking(request):
     ranking = Ranking()
     ranking.set_genre_ranking()
-    # serializers = GenreUserListSerializer(list(users), many=True)
     
     data = {
         'success': True
     }
     return JsonResponse(data)
-    # return Response(serializers.data)
 
 
 # insert data
