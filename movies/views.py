@@ -551,13 +551,19 @@ def infinite_scroll_review(request, pk):
 
     paginator = Paginator(reviews, 9)
     
-    page_num = request.GET.get('page_num')
+    page_num = int(request.GET.get('page_num'))
 
-    reviews = paginator.get_page(page_num)
-    serializer = ReviewSerializer(reviews, many=True)
-    
-    return Response(serializer.data)
+    reviews_length = len(reviews)
+    total_page = reviews_length // 9 + 1 if reviews_length % 9 else reviews_length // 9
 
+    if page_num <= total_page:
+        reviews = paginator.get_page(page_num)
+        serializer = ReviewSerializer(reviews, many=True)
+        
+        return Response(serializer.data)
+    else:
+        data = []
+        return JsonResponse(data, safe=False)
 
 
 
