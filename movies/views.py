@@ -17,6 +17,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 @api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def search(request, title):
+    movies = Movie.objects.filter(title__icontains=title)
+    serializer = MovieListSerializer(movies, many=True)
+    
+    return Response(serializer.data)
+
+@api_view(['GET'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_all_movies(request):
