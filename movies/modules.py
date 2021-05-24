@@ -338,13 +338,15 @@ class Ranking():
             top_genre_user = get_object_or_404(User, pk=genre_users[0].user_id)
             genre_user_rating = Movie_User_Genre_Rating.objects.filter(genre=genre, user=top_genre_user).order_by('-rating')[0]
             genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
-            genre_ranker.user = top_genre_user
-            if not genre_ranker.movie:
+            if not genre_ranker.movie or genre_ranker != top_genre_user:
                 movie = get_object_or_404(Movie, pk=genre_user_rating.movie_id)
+                genre_ranker.user = top_genre_user
                 genre_ranker.movie = movie
                 genre_ranker.save()
             else:
-                print('이미 등록된 영화가 있습니다.')
+                print(f'{genre.name} 장르 순위 변동사항 없음')
+        
+        print('장르별 랭킹 계산 완료')
         return
 
     # init genre ranker model

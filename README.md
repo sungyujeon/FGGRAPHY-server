@@ -52,6 +52,8 @@
 
   key는 genre_id, value는 랭킹 n등 안에 드는 사람들의 genre_user 객체 리스트
 
+- 장르별 랭킹 페이지 전체 정보(각 장르별 랭킹 1등이 등록한 영화, default=가장 평점 높게 준 영화, 리뷰 많은 장르 순으로 정렬) http://127.0.0.1:8000/api/v1/movies/genres/rankings/
+
 
 
 ##### Movie
@@ -67,13 +69,9 @@
 ##### Genre(장르별 영화)
 
 - 모든 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/
-
 - 개별 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/10751/datas
-
 - 개별 장르의 모든 영화 정보 http://127.0.0.1:8000/api/v1/movies/genres/10751/
-
 - review 많은 순 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/top-reviewed/
-
 
 
 

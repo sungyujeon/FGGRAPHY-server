@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
-from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection
-from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
+from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection, Genre_Ranker
+from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, GenreRankerListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
 
 from django.core import serializers
 from django.core.paginator import Paginator
@@ -304,6 +304,18 @@ def get_all_genre_top_ranked_users(request):
         res[genre_id] = serializer.data
 
     return Response(res)
+
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_genre_ranking_page_data(request):
+    genre_rankers = get_list_or_404(Genre_Ranker)
+    genre_rankers.sort(key = lambda x: x.genre.total_review_count, reverse=True)
+    
+    serializer = GenreRankerListSerializer(genre_rankers, many=True)
+
+    return Response(serializer.data)
+    
 
 
 # collections ====================================================================================
