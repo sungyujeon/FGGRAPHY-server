@@ -3,6 +3,9 @@ from . import views
 
 app_name = 'movies'
 urlpatterns = [
+    # search
+    path('search/<str:title>/', views.search),
+
     # 영화 관련
     path('', views.get_all_movies),
     path('top-rated/', views.get_top_rated_movies),

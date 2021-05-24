@@ -104,8 +104,8 @@ def get_top_ranked_users(request):
 
 # follow
 @api_view(['POST'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def follow(request, username):
     me = get_object_or_404(User, pk=2)
     you = get_object_or_404(User, username=username)
