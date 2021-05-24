@@ -3,7 +3,7 @@ User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
 from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection, Genre_Ranker
-from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, GenreRankerListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
+from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, GenreRankerSerializer, GenreRankerListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
 
 from django.core import serializers
 from django.core.paginator import Paginator
@@ -316,6 +316,25 @@ def get_genre_ranking_page_data(request):
 
     return Response(serializer.data)
     
+
+@api_view(['PUT'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_genre_ranking_page_data(request, genre_id):
+    genre = get_object_or_404(Genre, pk=genre_id)
+    genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
+    
+    serializer = GenreRankerSerializer(genre_ranker, data=request.data)
+    
+    if serializer.is_valid(raise_exception=True):
+        serializer.save()
+
+        return Response(serializer.data)
+
+    data = {
+        'success': False,
+    }
+    return JsonResponse(data)
 
 
 # collections ====================================================================================

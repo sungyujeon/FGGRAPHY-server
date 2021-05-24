@@ -54,6 +54,8 @@
 
 - 장르별 랭킹 페이지 전체 정보(각 장르별 랭킹 1등이 등록한 영화, default=가장 평점 높게 준 영화, 리뷰 많은 장르 순으로 정렬) http://127.0.0.1:8000/api/v1/movies/genres/rankings/
 
+- 장르별 랭킹 페이지에서 유저 1등의 영화 정보 수정 http://127.0.0.1:8000/api/v1/movies/genres/rankings/{genre_id}/ `method: PUT / data: movie: {movie_id}`
+
 
 
 ##### Movie

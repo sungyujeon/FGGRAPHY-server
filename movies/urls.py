@@ -27,6 +27,7 @@ urlpatterns = [
     # 장르별
     path('genres/', views.get_all_genres),
     path('genres/rankings/', views.get_genre_ranking_page_data),
+    path('genres/rankings/<int:genre_id>/', views.update_genre_ranking_page_data),
     path('genres/<int:genre_pk>/', views.get_genre_all_movies),
     path('genres/<int:genre_pk>/datas/', views.get_genre_datas),
     path('genres/top-reviewed/', views.get_top_reviewed_genres),

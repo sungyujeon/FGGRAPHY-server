@@ -98,6 +98,13 @@ class GenreUserListSerializer(serializers.ModelSerializer):
         model = Genre_User
         fields = '__all__'
 
+class GenreRankerSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True)
+    class Meta:
+        model = Genre_Ranker
+        fields = '__all__'
+        read_only_fields = ('genre', )
+
 class GenreRankerListSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True)
     user = serializers.SlugRelatedField(slug_field='username', read_only=True)
