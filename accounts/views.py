@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
@@ -10,6 +10,8 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from .serializers import UserSerializer, UserDataSerializer
 from .modules import UserSupport
+from movies.models import Genre_User
+from movies.serializers import GenreUserListSerializer
 
 User = get_user_model()
 
@@ -51,8 +53,13 @@ def signup(request):
 def get_or_update_or_delete_user(request, username):
     user = get_object_or_404(User, username=username)
     if request.method == 'GET':
-        serializer = UserDataSerializer(user)
-        return Response(serializer.data)
+        genre_user_rankings = Genre_User.objects.filter(user=user)
+        user_serializer = UserDataSerializer(user)
+        genre_serializer = GenreUserListSerializer(list(genre_user_rankings), many=True)
+
+        data = dict(user_serializer.data)
+        data['genres'] = genre_serializer.data
+        return JsonResponse(data)
     elif request.user == user:  # 로그인한 사용자와 수정/삭제하려는 사용자가 일치할 때
         if request.method == 'PUT':
             print('???????? 왜 회원정보 수정이 안되는거야...')
@@ -94,6 +101,35 @@ def get_top_ranked_users(request):
     serializer = UserDataSerializer(list(users), many=True)
 
     return Response(serializer.data)
+
+# follow
+@api_view(['POST'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def follow(request, username):
+    me = get_object_or_404(User, pk=2)
+    you = get_object_or_404(User, username=username)
+
+    if me == you:
+        data = {
+            'success': False,
+            'message': '동일한 사용자입니다.'
+        }
+        return JsonResponse(data)
+    else:
+        if you.followers.filter(pk=me.pk).exists():  # 팔로워 목록에 있으면 취소
+            you.followers.remove(me)
+            follow_status = False
+        else:
+            you.followers.add(me)
+            follow_status = True
+        
+        data = {
+            'success': True,
+            'follow_status': follow_status,
+        }
+        return JsonResponse(data)
+
 
         
 # admin ================================================================================================

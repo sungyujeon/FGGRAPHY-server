@@ -15,5 +15,6 @@ urlpatterns = [
 
     # user-profile
     path('profile/<str:username>/', views.get_or_update_or_delete_user),
+    path('profile/<str:username>/follow/', views.follow),
     
 ]

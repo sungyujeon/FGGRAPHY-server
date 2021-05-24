@@ -2,19 +2,29 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
-from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection
-from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
+from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection, Genre_Ranker
+from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, GenreRankerSerializer, GenreRankerListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
 
 from django.core import serializers
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.http import HttpResponse, JsonResponse
+from django.db.models import Count
 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def search(request, title):
+    movies = Movie.objects.filter(title__icontains=title)
+    serializer = MovieListSerializer(movies, many=True)
+    
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @authentication_classes([JSONWebTokenAuthentication])
@@ -305,6 +315,37 @@ def get_all_genre_top_ranked_users(request):
 
     return Response(res)
 
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_genre_ranking_page_data(request):
+    genre_rankers = get_list_or_404(Genre_Ranker)
+    genre_rankers.sort(key = lambda x: x.genre.total_review_count, reverse=True)
+    
+    serializer = GenreRankerListSerializer(genre_rankers, many=True)
+
+    return Response(serializer.data)
+    
+
+@api_view(['PUT'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_genre_ranking_page_data(request, genre_id):
+    genre = get_object_or_404(Genre, pk=genre_id)
+    genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
+    
+    serializer = GenreRankerSerializer(genre_ranker, data=request.data)
+    
+    if serializer.is_valid(raise_exception=True):
+        serializer.save()
+
+        return Response(serializer.data)
+
+    data = {
+        'success': False,
+    }
+    return JsonResponse(data)
+
 
 # collections ====================================================================================
 @api_view(['GET', 'POST'])
@@ -505,7 +546,9 @@ def infinite_scroll_review(request, pk):
     # review가 달린 영화가 어떤 영화인지 알기위해
     movie = get_object_or_404(Movie, pk=pk)
     # 해당 영화에 관련된 리뷰만 가져오기
-    reviews = Review.objects.filter(movie=movie)
+    reviews = list(Review.objects.filter(movie=movie))
+    reviews.sort(key=lambda x: x.like_users.count(), reverse=True)
+
     paginator = Paginator(reviews, 9)
     
     page_num = request.GET.get('page_num')
@@ -528,6 +571,18 @@ def infinite_scroll_review(request, pk):
 def calc_genre_ranking(request):
     ranking = Ranking()
     ranking.set_genre_ranking()
+    
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def init_genre_ranker(request):
+    ranking = Ranking()
+    ranking.init_genre_ranker_model()
     
     data = {
         'success': True
