@@ -40,7 +40,6 @@ urlpatterns = [
     path('user-collections/<int:collection_pk>/like/', views.like_collection),
     
     # infinity scroll
-    # 어떤 영화인지 pk값이 필요해서 추가함
     path('infinite-scroll/reviews/<int:pk>', views.infinite_scroll_review),
 
     # admin

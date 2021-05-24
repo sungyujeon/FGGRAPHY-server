@@ -102,6 +102,35 @@ def get_top_ranked_users(request):
 
     return Response(serializer.data)
 
+# follow
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def follow(request, username):
+    me = get_object_or_404(User, pk=2)
+    you = get_object_or_404(User, username=username)
+
+    if me == you:
+        data = {
+            'success': False,
+            'message': '동일한 사용자입니다.'
+        }
+        return JsonResponse(data)
+    else:
+        if you.followers.filter(pk=me.pk).exists():  # 팔로워 목록에 있으면 취소
+            you.followers.remove(me)
+            follow_status = False
+        else:
+            you.followers.add(me)
+            follow_status = True
+        
+        data = {
+            'success': True,
+            'follow_status': follow_status,
+        }
+        return JsonResponse(data)
+
+
         
 # admin ================================================================================================
 @api_view(['GET'])
