@@ -26,6 +26,8 @@ urlpatterns = [
 
     # 장르별
     path('genres/', views.get_all_genres),
+    path('genres/rankings/', views.get_genre_ranking_page_data),
+    path('genres/rankings/<int:genre_id>/', views.update_genre_ranking_page_data),
     path('genres/<int:genre_pk>/', views.get_genre_all_movies),
     path('genres/<int:genre_pk>/datas/', views.get_genre_datas),
     path('genres/top-reviewed/', views.get_top_reviewed_genres),
@@ -38,11 +40,11 @@ urlpatterns = [
     path('user-collections/<int:collection_pk>/like/', views.like_collection),
     
     # infinity scroll
-    # 어떤 영화인지 pk값이 필요해서 추가함
     path('infinite-scroll/reviews/<int:pk>', views.infinite_scroll_review),
 
     # admin
     path('calc-genre-ranking/', views.calc_genre_ranking),
+    path('init-genre-ranker/', views.init_genre_ranker),
 
     # insert data / admin
     path('insert-data/', views.insert_data),

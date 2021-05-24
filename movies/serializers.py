@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection, Movie_User_Rating
+from .models import Movie, Genre, Genre_User, Genre_Ranker, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection, Movie_User_Rating
 
 User = get_user_model()
 
@@ -97,6 +97,22 @@ class GenreUserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre_User
         fields = '__all__'
+
+class GenreRankerSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True)
+    class Meta:
+        model = Genre_Ranker
+        fields = '__all__'
+        read_only_fields = ('genre', )
+
+class GenreRankerListSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True)
+    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    movie = MovieSerializer(read_only=True)
+    class Meta:
+        model = Genre_Ranker
+        fields = '__all__'
+        read_only_fields = ('genre', )
 
 
 class CollectionSerializer(serializers.ModelSerializer):

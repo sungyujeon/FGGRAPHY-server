@@ -18,8 +18,13 @@
 
 ##### Amdin
 
+- genre ranker 모델 init http://127.0.0.1:8000/api/v1/movies/init-genre-ranker/
+
 - 전체 랭킹 갱신 http://127.0.0.1:8000/accounts/calc-ranking/
+
 - 장르별 랭킹 갱신 http://127.0.0.1:8000/api/v1/movies/calc-genre-ranking/
+
+  
 
 
 
@@ -29,7 +34,11 @@
 
   <small>>> parameter 넣지 않으면 10개로 설정</small>
 
-- 
+- User 정보 조회 http://127.0.0.1:8000/accounts/{username}/
+
+- User 정보 삭제 http://127.0.0.1:8000/accounts/{username}/ `method:DELETE`
+
+- follow http://127.0.0.1:8000/accounts/{username}/follow/ `method: POST` 
 
 
 
@@ -47,6 +56,10 @@
 
   key는 genre_id, value는 랭킹 n등 안에 드는 사람들의 genre_user 객체 리스트
 
+- 장르별 랭킹 페이지 전체 정보(각 장르별 랭킹 1등이 등록한 영화, default=가장 평점 높게 준 영화, 리뷰 많은 장르 순으로 정렬) http://127.0.0.1:8000/api/v1/movies/genres/rankings/
+
+- 장르별 랭킹 페이지에서 유저 1등의 영화 정보 수정 http://127.0.0.1:8000/api/v1/movies/genres/rankings/{genre_id}/ `method: PUT / data: movie: {movie_id}`
+
 
 
 ##### Movie
@@ -62,13 +75,9 @@
 ##### Genre(장르별 영화)
 
 - 모든 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/
-
 - 개별 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/10751/datas
-
 - 개별 장르의 모든 영화 정보 http://127.0.0.1:8000/api/v1/movies/genres/10751/
-
 - review 많은 순 장르 정보 http://127.0.0.1:8000/api/v1/movies/genres/top-reviewed/
-
 
 
 
@@ -78,7 +87,7 @@
   - 모든 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
   - 리뷰 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/ `method: POST / data: content`
   
-  - 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+  - 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/reviews/{review_pk}/
   - 리뷰 수정 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/ `method: PUT / data: content`
 
   - 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/ `method: DELETE`
