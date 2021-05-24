@@ -43,6 +43,7 @@ urlpatterns = [
 
     # admin
     path('calc-genre-ranking/', views.calc_genre_ranking),
+    path('init-genre-ranker/', views.init_genre_ranker),
 
     # insert data / admin
     path('insert-data/', views.insert_data),

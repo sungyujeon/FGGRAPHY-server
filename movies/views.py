@@ -534,6 +534,18 @@ def calc_genre_ranking(request):
     }
     return JsonResponse(data)
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def init_genre_ranker(request):
+    ranking = Ranking()
+    ranking.init_genre_ranker_model()
+    
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
 
 # insert data
 from .modules import InsertData

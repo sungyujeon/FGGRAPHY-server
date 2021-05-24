@@ -1,7 +1,7 @@
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.contrib.auth import get_user_model
 
-from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage
+from .models import Movie, Genre, Genre_User, Genre_Ranker, Movie_User_Genre_Rating, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage
 
 User = get_user_model()
 
@@ -332,7 +332,32 @@ class Ranking():
                         genre_user.save()
                         tmp_i = i+1
                         tmp_p = p
+
+            # genre_id의 1등 유저
+            genre = get_object_or_404(Genre, pk=genre_id)
+            top_genre_user = get_object_or_404(User, pk=genre_users[0].user_id)
+            genre_user_rating = Movie_User_Genre_Rating.objects.filter(genre=genre, user=top_genre_user).order_by('-rating')[0]
+            genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
+            genre_ranker.user = top_genre_user
+            if not genre_ranker.movie:
+                movie = get_object_or_404(Movie, pk=genre_user_rating.movie_id)
+                genre_ranker.movie = movie
+                genre_ranker.save()
+            else:
+                print('이미 등록된 영화가 있습니다.')
         return
+
+    # init genre ranker model
+    def init_genre_ranker_model(self):
+        genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
+
+        for genre_id in genre_ids:
+            genre = get_object_or_404(Genre, pk=genre_id)
+            
+            genre_ranker, created = Genre_Ranker.objects.get_or_create(
+                genre = genre,
+            )
+        print('init genre ranker model 완료')
 
 
 
@@ -418,7 +443,7 @@ class InsertData():
 
         seeder = Seed.seeder()
         
-        seeder.add_entity(Movie_User_Rating, 400, {
+        seeder.add_entity(Movie_User_Rating, 10000, {
             'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
             'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 28)]),
             'rating': lambda x: rate_numbers[random.randint(0, 9)],
@@ -428,7 +453,6 @@ class InsertData():
         print('평점 생성 완료')
 
     def set_seed_genre_rating(self):
-        Movie_User_Genre_Rating.objects.all().delete()
         rate_numbers = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
         
         ratings = Movie_User_Rating.objects.all()

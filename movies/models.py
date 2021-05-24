@@ -72,9 +72,14 @@ class Genre_User(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     point = models.IntegerField(default=0)
-    ranking = models.IntegerField(null=True, default=None)
+    ranking = models.IntegerField(null=True, default=10000000)
     tier = models.IntegerField(null=True, default=None)
 
+
+class Genre_Ranker(models.Model):
+    genre = models.OneToOneField(Genre, unique=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, default=None)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, null=True, default=None)
 
 class Review(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)

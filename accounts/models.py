@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     point = models.IntegerField(default=0)
-    ranking = models.IntegerField(null=True, default=None)
+    ranking = models.IntegerField(null=True, default=10000000)
     tier = models.IntegerField(null=True, default=None)
 
 

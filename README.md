@@ -18,8 +18,13 @@
 
 ##### Amdin
 
+- genre ranker 모델 init http://127.0.0.1:8000/api/v1/movies/init-genre-ranker/
+
 - 전체 랭킹 갱신 http://127.0.0.1:8000/accounts/calc-ranking/
+
 - 장르별 랭킹 갱신 http://127.0.0.1:8000/api/v1/movies/calc-genre-ranking/
+
+  
 
 
 
@@ -29,7 +34,7 @@
 
   <small>>> parameter 넣지 않으면 10개로 설정</small>
 
-- 
+- User 정보 조회 : 
 
 
 
@@ -78,7 +83,7 @@
   - 모든 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/
   - 리뷰 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/ `method: POST / data: content`
   
-  - 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/
+  - 단일 리뷰 정보 http://127.0.0.1:8000/api/v1/movies/reviews/{review_pk}/
   - 리뷰 수정 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/ `method: PUT / data: content`
 
   - 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/ `method: DELETE`
