@@ -134,3 +134,9 @@ class MovieUserRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie_User_Rating
         fields = ('rating', 'movie', )
+
+class MovieUserRatingDataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Movie_User_Rating
+        fields = ('rating',)

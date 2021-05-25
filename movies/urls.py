@@ -21,7 +21,7 @@ urlpatterns = [
     path('reviews/<str:username>/latest/', views.get_user_latest_reviews),
     
     # 평가하기
-    path('<int:movie_pk>/rating/', views.set_rating),
+    path('<int:movie_pk>/rating/', views.get_or_update_rating),
 
     # user별
     path('users/<str:username>/top-rated/', views.get_user_top_rated_movies),
