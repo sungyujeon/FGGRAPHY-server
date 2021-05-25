@@ -302,17 +302,59 @@ def get_top_reviewed_genres(request):  # 장르별 리뷰순
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_all_genre_top_ranked_users(request):
-    ranker_nums = int(request.GET.get('ranker_nums'))
+    try:
+        ranker_num = int(request.GET.get('ranker_num'))
+    except:
+        ranker_num = 10
+    try:
+        movie_num = int(request.GET.get('movie_num'))
+    except:
+        movie_num = 10
+
     genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
     
     res = {}   
     for genre_id in genre_ids:
-        genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')[:ranker_nums]
+        genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')[:ranker_num]
         serializer = GenreUserListSerializer(list(genre_users), many=True)
         genre_id = serializer.data[0].get('genre')
         res[genre_id] = serializer.data
 
+
+        for i in range(len(genre_users)):
+            user = get_object_or_404(User, pk=genre_users[i].user_id)
+            ratings = Movie_User_Rating.objects.filter(user=user).order_by('-rating')[:movie_num]
+            rating_serializer = MovieUserRatingSerializer(ratings, many=True)
+            # print(rating_serializer.data)
+            serializer.data[i]['movies'] = rating_serializer.data
+        
     return Response(res)
+
+
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_genre_top_ranked_users(request, genre_pk):
+    try:
+        ranker_num = int(request.GET.get('ranker_num'))
+    except:
+        ranker_num = 10
+    try:
+        movie_num = int(request.GET.get('movie_num'))
+    except:
+        movie_num = 10
+
+    genre_users = Genre_User.objects.filter(genre_id=genre_pk).order_by('-point')[:ranker_num]
+    serializer = GenreUserListSerializer(list(genre_users), many=True)
+
+    for i in range(len(genre_users)):
+        user = get_object_or_404(User, pk=genre_users[i].user_id)
+        ratings = Movie_User_Rating.objects.filter(user=user).order_by('-rating')[:movie_num]
+        rating_serializer = MovieUserRatingSerializer(ratings, many=True)
+        serializer.data[i]['movies'] = rating_serializer.data
+        
+    return Response(serializer.data)
+
 
 @api_view(['GET'])
 @authentication_classes([JSONWebTokenAuthentication])

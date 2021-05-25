@@ -93,7 +93,8 @@ class GenreListSerializer(serializers.ModelSerializer):
         exclude = ('movies',)
 
 class GenreUserListSerializer(serializers.ModelSerializer):
-
+    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    
     class Meta:
         model = Genre_User
         fields = '__all__'
