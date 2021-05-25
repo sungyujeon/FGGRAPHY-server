@@ -50,11 +50,13 @@
 
   <small>>> parameter 넣지 않으면 5명, 10개로 설정</small>
 
-- 전체 장르별 랭커 n명 출력 http://127.0.0.1:8000/api/v1/movies/genres/top-ranked/?ranker_nums={ranker_nums}
+- 전체 장르별 랭커 n명의 추천영화 n개 출력 http://127.0.0.1:8000/api/v1/movies/genres/top-ranked/?ranker_nums={ranker_nums}&movie_num={movie_num}
 
   `type: json`, `key(genre_id): value(rankers object list)`
 
   key는 genre_id, value는 랭킹 n등 안에 드는 사람들의 genre_user 객체 리스트
+
+- 특정 장르별 랭커 n명의 추천 영화 n개 출력 http://127.0.0.1:8000/api/v1/movies/genres/{genre_id}/top-ranked/?ranker_nums={ranker_nums}&movie_num={movie_num} `위와 동일(genre_id) 추가`
 
 - 장르별 랭킹 페이지 전체 정보(각 장르별 랭킹 1등이 등록한 영화, default=가장 평점 높게 준 영화, 리뷰 많은 장르 순으로 정렬) http://127.0.0.1:8000/api/v1/movies/genres/rankings/
 

@@ -35,6 +35,7 @@ urlpatterns = [
     path('genres/<int:genre_pk>/datas/', views.get_genre_datas),
     path('genres/top-reviewed/', views.get_top_reviewed_genres),
     path('genres/top-ranked/', views.get_all_genre_top_ranked_users),
+    path('genres/<int:genre_pk>/top-ranked/', views.get_genre_top_ranked_users),
 
     # collections
     path('collections/', views.get_or_create_collections),
