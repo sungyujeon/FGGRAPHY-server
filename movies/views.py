@@ -3,7 +3,7 @@ User = get_user_model()
 
 from .modules import TmdbMovie, Ranking
 from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection, Genre_Ranker
-from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, GenreRankerSerializer, GenreRankerListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer
+from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, GenreRankerSerializer, GenreRankerListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer, MovieUserRatingDataSerializer
 
 from django.core import serializers
 from django.core.paginator import Paginator
@@ -91,7 +91,6 @@ def get_or_create_reviews(request, movie_pk):
     if request.method == 'GET':  # 전체 review 조회 
         reviews = movie.review_set.all()
         serializers = ReviewSerializer(list(reviews), many=True)
-        print(serializers)
         
         return Response(serializers.data)
     elif request.method == 'POST':  # review 생성
@@ -465,32 +464,59 @@ def like_collection(request, collection_pk):
 
 # rating =============================================================================================================
 # user > movie > rating!
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
-def set_rating(request, movie_pk):
-    input_rating = float(request.POST.get('rating'))
-    user = request.user
-    movie = get_object_or_404(Movie, pk=movie_pk)
-    
-    data = { 'success': True, 'rating_status': None, }
-    if Movie_User_Rating.objects.filter(user=user, movie=movie).exists():  # 이미 평가를 했다면 수정 or 삭제
-        rating = get_object_or_404(Movie_User_Rating, user=user, movie=movie)
-        curr_rating = rating.rating
-        
-        if input_rating == curr_rating:  # 같으면 삭제
-            rating.delete()
-            data['rating_status'] = 'deleted'
-        else:  # 다르면 수정
-            rating.rating = input_rating
-            rating.save()
-            
-            data['rating_status'] = 'updated'
-    else:  # 평가하지 않았다면 생성
-        rating = Movie_User_Rating.objects.create(user=user, movie=movie, rating=input_rating)
-        data['rating_status'] = 'created'
+def get_or_update_rating(request, movie_pk):
+    if request.method == 'GET':
+        user = request.user
+        movie = get_object_or_404(Movie, pk=movie_pk)
+        try:
+            user_rating = get_object_or_404(Movie_User_Rating, user=user, movie=movie)
+        except:
+            return JsonResponse({ 'rating': 0.0 })
+        serializer = MovieUserRatingDataSerializer(user_rating)
 
-    return JsonResponse(data)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        input_rating = float(request.data.get('rating'))
+        user = request.user
+        movie = get_object_or_404(Movie, pk=movie_pk)
+        genres = movie.genres.all()
+        data = { 'success': True, 'rating_status': None, }
+        if Movie_User_Rating.objects.filter(user=user, movie=movie).exists():  # 이미 평가를 했다면 수정 or 삭제
+            rating = get_object_or_404(Movie_User_Rating, user=user, movie=movie)
+            curr_rating = rating.rating
+
+            if input_rating == curr_rating:  # 같으면 삭제
+                rating.delete()
+
+                # genre rating도 삭제
+                for genre in genres:
+                    genre_rating = get_object_or_404(Movie_User_Genre_Rating, movie=movie, user=user, genre=genre)
+                    genre_rating.delete()
+
+                data['rating_status'] = 'deleted'
+            else:  # 다르면 수정
+                rating.rating = input_rating
+                rating.save()
+
+                for genre in genres:
+                    genre_rating = get_object_or_404(Movie_User_Genre_Rating, movie=movie, user=user, genre=genre)
+                    genre_rating.rating = input_rating
+                    genre_rating.save()
+                
+                data['rating_status'] = 'updated'
+        else:  # 평가하지 않았다면 생성
+            rating = Movie_User_Rating.objects.create(user=user, movie=movie, rating=input_rating)
+            
+            # genre rating도 추가
+            for genre in genres:
+                Movie_User_Genre_Rating.objects.create(user=user, movie=movie, genre=genre, rating=input_rating)
+            
+            data['rating_status'] = 'created'
+
+        return JsonResponse(data)
 
 
 

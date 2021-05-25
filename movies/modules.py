@@ -455,22 +455,20 @@ class InsertData():
         print('평점 생성 완료')
 
     def set_seed_genre_rating(self):
-        rate_numbers = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
-        
         ratings = Movie_User_Rating.objects.all()
 
         for rating in ratings:
             movie = get_object_or_404(Movie, pk=rating.movie_id)
             user = get_object_or_404(User, pk=rating.user_id)
+            rating_num = rating.rating
             
             genres = movie.genres.all()
-            rating = rate_numbers[random.randint(0, 9)]
             for genre in genres:
                 Movie_User_Genre_Rating.objects.create(
                     movie = movie,
                     user = user,
                     genre = genre,
-                    rating = rating,
+                    rating = rating_num,
                 )
         
         print('평가 결과 바탕 장르별 영화 평점 계산 완료')

@@ -64,6 +64,8 @@
 
 ##### Movie
 
+- search http://127.0.0.1:8000/api/v1/movies/search/{search_input}/
+
 - 모든 영화 정보 http://127.0.0.1:8000/api/v1/movies/
 - 단일 영화 정보 http://127.0.0.1:8000/api/v1/movies/{movie_id}/
 - 평점 상위 n개 영화 정보 http://127.0.0.1:8000/api/v1/movies/top-rated/?movie_count={movie_count}
@@ -97,18 +99,16 @@
 
   - 리뷰 삭제 http://127.0.0.1:8000/api/v1/movies/reviews/{review_pk}/ `method: DELETE`
   - 리뷰 좋아요 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/{review_pk}/like/ `method: POST`
-  
 - Comment
 
   - 모든 댓글 정보 http://127.0.0.1:8000/api/v1/movies/reviews/{review_pk}/comments/
-
   - 댓글 작성 http://127.0.0.1:8000/api/v1/movies/{movie_id}/reviews/ `method: POST / data: content`
-
   - 단일 댓글 정보 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/
-
   - 댓글 수정 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/ `method: PUT / data: content`
-
   - 댓글 삭제 http://127.0.0.1:8000/api/v1/movies/comments/{comment_pk}/ `method: DELETE`
+- Rating
+  - 평점 가져오기 http://127.0.0.1:8000/api/v1/movies/{movie_id}/rating/
+  - 평점 남기기 / 수정하기 / 삭제하기 http://127.0.0.1:8000/api/v1/movies/{movie_id}/rating/ `method: POST / data: rating`
 
 
 
