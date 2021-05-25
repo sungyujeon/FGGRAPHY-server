@@ -375,16 +375,16 @@ from django.db.models import Sum
 from .models import Comment, Movie_User_Rating, Movie_User_Genre_Rating, Review
 class InsertData():
     def my_exec(self):
-        self.get_all_movies_from_tmdb()
-        self.get_seed_users()
-        self.get_seed_review()
-        self.get_seed_comment()
-        self.get_seed_rating()
-        self.set_seed_genre_rating()
+        # self.get_all_movies_from_tmdb()
+        # self.get_seed_users()
+        # self.get_seed_review()
+        # self.get_seed_comment()
+        # self.get_seed_rating()
+        # self.set_seed_genre_rating()
         self.count_genre_reviews()
         self.count_genre_comments()
         self.count_ratings()
-        self.remove_user()
+        # self.remove_user()
     
     def remove_user(self):
         user_len = User.objects.all().count()
