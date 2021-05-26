@@ -111,6 +111,7 @@ class GenreRankerListSerializer(serializers.ModelSerializer):
 
 
 class CollectionSerializer(serializers.ModelSerializer):
+    movies = MovieListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Collection
@@ -118,7 +119,7 @@ class CollectionSerializer(serializers.ModelSerializer):
         read_only_fields = ('user', 'movies', 'like_users',)
 
 class CollectionListSerializer(serializers.ModelSerializer):
-    collections = CollectionSerializer(many=True, read_only=True)
+    movies = MovieListSerializer(many=True, read_only=True)
     class Meta:
         model = Collection
         fields = '__all__'

@@ -28,6 +28,7 @@ urlpatterns = [
     path('users/<str:username>/top-rated/', views.get_user_top_rated_movies),
     path('users/<str:username>/genres/<int:genre_pk>/top-rated/', views.get_user_genre_top_rated_movies),
 
+
     # 장르별
     path('genres/', views.get_all_genres),
     path('genres/rankings/', views.get_genre_ranking_page_data),
@@ -38,11 +39,13 @@ urlpatterns = [
     path('genres/top-ranked/', views.get_all_genre_top_ranked_users),
     path('genres/<int:genre_pk>/top-ranked/', views.get_genre_top_ranked_users),
 
+
     # collections
-    path('collections/', views.get_or_create_collections),
-    path('collections/<int:collection_pk>/', views.get_or_update_or_delete_collection),
-    path('user-collections/<int:collection_pk>/<int:movie_pk>/', views.create_or_delete_collection_movie),
-    path('user-collections/<int:collection_pk>/like/', views.like_collection),
+    path('collections/', views.get_or_create_collections),  # 전체 컬렉션
+    path('users/<str:username>/collections/', views.get_user_collections),  # 한 유저의 컬렉션 전체
+    path('collections/<int:collection_pk>/', views.get_or_update_or_delete_collection),  # 한 컬렉션 조회, 수정, 삭제
+    path('user-collections/<int:collection_pk>/<int:movie_pk>/', views.create_or_delete_collection_movie),  # 컬렉션 내 영화 추가, 삭제
+    path('user-collections/<int:collection_pk>/like/', views.like_collection),  # 컬렉션 좋아요
     
     # infinity scroll
     path('infinite-scroll/reviews/<int:pk>', views.infinite_scroll_review),

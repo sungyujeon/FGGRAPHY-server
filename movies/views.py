@@ -462,6 +462,18 @@ def get_or_update_or_delete_collection(request, collection_pk):
     
     return JsonResponse(data)
 
+# user별  ======================================================================
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user_collections(request, username):
+    user = get_object_or_404(User, username=username)
+    collections = user.collection_set.all()
+    serializer = CollectionListSerializer(collections)
+
+    return Response(serializer.data)
+
+
 # user-collection movie 추가, 삭제
 @api_view(['POST', 'DELETE'])
 @authentication_classes([JSONWebTokenAuthentication])

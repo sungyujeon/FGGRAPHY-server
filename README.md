@@ -117,13 +117,11 @@
 ##### Collection
 
 - 모든 컬렉션 정보 http://127.0.0.1:8000/api/v1/movies/collections/
+- 한 유저의 컬렉션 전체 조회 http://127.0.0.1:8000/api/v1/movies/users/{username}/collections/
 - 컬렉션 생성 http://127.0.0.1:8000/api/v1/movies/collections/ `method: POST / data: title`
-
-- 단일 컬렉션 정보 http://127.0.0.1:8000/api/v1/movies/collections/{collection_pk}/
+- 단일 컬렉션 정보 조회http://127.0.0.1:8000/api/v1/movies/collections/{collection_pk}/
 - 컬렉션 수정 http://127.0.0.1:8000/api/v1/movies/collections/{collection_pk}/ `method: PUT / data: title`
-
 - 컬렉션 삭제 http://127.0.0.1:8000/api/v1/movies/collections/{collection_pk}/ `method: DELETE`
-
 - 컬렉션 내 영화 추가 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/{movie_pk}/ `method: POST`
 - 컬렉션 내 영화 삭제 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/{movie_pk}/ `method: DELETE`
 - 컬렉션 좋아요 http://127.0.0.1:8000/api/v1/movies/user-collections/{collection_pk}/like/ `method: POST`
