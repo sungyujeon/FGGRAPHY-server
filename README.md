@@ -34,7 +34,7 @@
 
   <small>>> parameter 넣지 않으면 10개로 설정</small>
 
-- User 정보 조회 http://127.0.0.1:8000/accounts/{username}/
+- User 정보 조회 http://127.0.0.1:8000/accounts/profile/{username}/
 
 - User 정보 삭제 http://127.0.0.1:8000/accounts/{username}/ `method:DELETE`
 
