@@ -290,10 +290,10 @@ class InsertData():
     def my_exec(self):
         # self.get_all_movies_by_popularity()
         # self.get_all_movies_from_tmdb()
-        # self.get_seed_users()
+        self.get_seed_users()
         # self.get_seed_review()
         # self.get_seed_comment()
-        self.get_seed_rating()
+        # self.get_seed_rating()
         # self.set_seed_genre_rating()
         # self.count_genre_reviews()
         # self.count_genre_comments()
@@ -325,7 +325,7 @@ class InsertData():
     def get_all_movies_by_popularity(self):
         load_dotenv()
         tmdb_api_key = os.getenv('TMDB_API_KEY')
-        for i in range(10, 100):
+        for i in range(21, 30):
             URL = f'https://api.themoviedb.org/3/discover/movie?page={i}&sort_by=popularity.desc&api_key={tmdb_api_key}&language=ko&region=KR'
             res = requests.get(URL)
             if res.status_code == 200:
@@ -348,23 +348,23 @@ class InsertData():
                     movie.create_movie()
                     print(f'{movie.title} 생성 완료')
 
-    # def get_seed_users(self):
-    #     print('유저 생성 시작')
-    #     seeder = Seed.seeder()
+    def get_seed_users(self):
+        print('유저 생성 시작')
+        seeder = Seed.seeder()
     
-    #     seeder.add_entity(User, 19, {
-    #         'point': 0,
-    #         'ranking': None,
-    #         'tier': 5,
-    #     })
-    #     seeder.execute()
+        seeder.add_entity(User, 19, {
+            'point': 0,
+            'ranking': None,
+            'tier': 5,
+        })
+        seeder.execute()
 
-    #     # tmp user genre
-    #     for i in range(1, 101):
-    #         user = get_object_or_404(User, pk=i)
-    #         self.set_genre_user(user)
+        # tmp user genre
+        for i in range(2, 50):
+            user = get_object_or_404(User, pk=i)
+            self.set_genre_user(user)
             
-    #     print('user 생성 완료')
+        print('user 생성 완료')
 
     def set_genre_user(self, user):
         genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
@@ -386,7 +386,7 @@ class InsertData():
 
     def get_seed_rating(self):
             
-        movie_ids = __get_movie_ids__()
+        movie_ids = self.__get_movie_ids__()
         # rate_numbers = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
         
 

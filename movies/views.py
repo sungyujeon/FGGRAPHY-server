@@ -197,14 +197,14 @@ def like_review(request, movie_pk, review_pk):
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def isWriteReview(request, movie_pk):
-    movie = get_object_or_404(pk=movie_pk)
+    movie = get_object_or_404(Movie, pk=movie_pk)
     data = {
         'success': True,
         'isWritten': False,
     }
+
     if Review.objects.filter(user=request.user, movie=movie).exists():
         data['isWritten'] = True
-    
     return JsonResponse(data)
     
 # comment ======================================================================
