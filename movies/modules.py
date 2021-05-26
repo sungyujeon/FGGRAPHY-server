@@ -176,16 +176,20 @@ class Ranking():
 
             # genre_id의 1등 유저
             genre = get_object_or_404(Genre, pk=genre_id)
-            top_genre_user = get_object_or_404(User, pk=genre_users[0].user_id)
-            genre_user_rating = Movie_User_Genre_Rating.objects.filter(genre=genre, user=top_genre_user).order_by('-rating')[0]
-            genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
-            if not genre_ranker.movie or genre_ranker != top_genre_user:
-                movie = get_object_or_404(Movie, pk=genre_user_rating.movie_id)
-                genre_ranker.user = top_genre_user
-                genre_ranker.movie = movie
-                genre_ranker.save()
-            else:
-                print(f'{genre.name} 장르 순위 변동사항 없음')
+            try:
+                top_genre_user = get_object_or_404(User, pk=genre_users[0].user_id)
+                genre_user_rating = Movie_User_Genre_Rating.objects.filter(genre=genre, user=top_genre_user).order_by('-rating')[0]
+                
+                genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
+                if not genre_ranker.movie or genre_ranker != top_genre_user:
+                    movie = get_object_or_404(Movie, pk=genre_user_rating.movie_id)
+                    genre_ranker.user = top_genre_user
+                    genre_ranker.movie = movie
+                    genre_ranker.save()
+                else:
+                    print(f'{genre.name} 장르 순위 변동사항 없음')
+            except:
+                print('error')
         
         print('장르별 랭킹 계산 완료')
         return
@@ -288,13 +292,14 @@ from django.db.models import Sum
 from .models import Comment, Movie_User_Rating, Movie_User_Genre_Rating, Review
 class InsertData():
     def my_exec(self):
+        pass
         # self.get_all_movies_by_popularity()
-        self.get_seed_users()
-        self.get_seed_review()
-        self.get_seed_comment()
-        self.get_seed_rating()
-        self.set_seed_genre_rating()
-        self.count_genre_reviews()
+        # self.get_seed_users()
+        # self.get_seed_review()
+        # self.get_seed_comment()
+        # self.get_seed_rating()
+        # self.set_seed_genre_rating()
+        # self.count_genre_reviews()
         self.count_genre_comments()
         self.count_ratings()
         # self.get_all_movies_from_tmdb()
@@ -352,7 +357,7 @@ class InsertData():
         print('유저 생성 시작')
         seeder = Seed.seeder()
     
-        seeder.add_entity(User, 19, {
+        seeder.add_entity(User, 1, {
             'point': 0,
             'ranking': None,
             'tier': 5,
@@ -385,7 +390,7 @@ class InsertData():
         return tmp_movie_ids
 
     def get_seed_rating(self):
-        Movie_User_Rating.objects.create(rating=3.0, movie=get_object_or_404(pk=99), user=get_object_or_404(User, pk=3))
+        # Movie_User_Rating.objects.create(rating=3.0, movie=get_object_or_404(Movie, pk=99), user=get_object_or_404(User, pk=3))
             
         movie_ids = self.__get_movie_ids__()
         rate_numbers = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
@@ -394,8 +399,8 @@ class InsertData():
         seeder = Seed.seeder()
         
         seeder.add_entity(Movie_User_Rating, 1000, {
-            'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(2, 20)),
-            'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 100)]),
+            'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 20)),
+            'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(100, 4444)]),
             'rating': lambda x: rate_numbers[random.randint(0, 9)],
         })
         seeder.execute()
@@ -441,14 +446,14 @@ class InsertData():
 
 
     def get_seed_review(self):
-        Review.objects.get_or_create(content='review', movie=get_object_or_404(Movie, pk=99), user=get_object_or_404(User, pk=3))
+        # Review.objects.get_or_create(content='review', movie=get_object_or_404(Movie, pk=99), user=get_object_or_404(User, pk=3))
         movie_ids = self.__get_movie_ids__()
 
         seeder = Seed.seeder()
         
-        seeder.add_entity(Review, 300, {
-            'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(2, 20)),
-            'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 100)]),
+        seeder.add_entity(Review, 500, {
+            'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 20)),
+            'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(100, 4000)]),
         })
         seeder.execute()
 
