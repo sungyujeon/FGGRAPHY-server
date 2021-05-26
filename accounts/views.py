@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.contrib.auth import get_user_model
@@ -10,7 +11,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from .serializers import UserSerializer, UserDataSerializer
 from .modules import UserSupport
-from movies.models import Genre_User
+from movies.models import Genre_User, Movie_User_Rating
 from movies.serializers import GenreUserListSerializer
 
 User = get_user_model()
@@ -56,8 +57,10 @@ def get_or_update_or_delete_user(request, username):
         genre_user_rankings = Genre_User.objects.filter(user=user)
         user_serializer = UserDataSerializer(user)
         genre_serializer = GenreUserListSerializer(list(genre_user_rankings), many=True)
+        avg = Movie_User_Rating.objects.filter(user=user).aggregate(Avg('rating'))
 
         data = dict(user_serializer.data)
+        data['review_average'] = float(avg.get('rating__avg'))
         data['genres'] = genre_serializer.data
         return JsonResponse(data)
     elif request.user == user:  # 로그인한 사용자와 수정/삭제하려는 사용자가 일치할 때

@@ -11,7 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'password',)
 
 class UserDataSerializer(serializers.ModelSerializer):
+    review_count = serializers.IntegerField(source='review_set.count', read_only=True)
+    review_avg = serializers.FloatField(source='movie_user_rating_set.avg', read_only=True)
     class Meta:
         model = User
-        fields = ('username', 'point', 'ranking', 'tier',)
+        fields = ('username', 'point', 'ranking', 'tier', 'review_count', 'review_avg')
         
