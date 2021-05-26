@@ -88,6 +88,7 @@ class GenreListSerializer(serializers.ModelSerializer):
 
 class GenreUserListSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    genre = serializers.SlugRelatedField(slug_field='name', read_only=True)
     
     class Meta:
         model = Genre_User
