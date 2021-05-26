@@ -58,7 +58,8 @@ def get_or_update_or_delete_user(request, username):
         user_serializer = UserDataSerializer(user)
         genre_serializer = GenreUserListSerializer(list(genre_user_rankings), many=True)
         avg = Movie_User_Rating.objects.filter(user=user).aggregate(Avg('rating'))
-        
+        followers_count = user.followers.all().count()
+        followings_count = user.followings.all().count()
         if user.followers.all().filter(pk=request.user.pk).exists():
             follow_status = True
         else:
@@ -66,6 +67,8 @@ def get_or_update_or_delete_user(request, username):
 
         data = dict(user_serializer.data)
         data['follow_status'] = follow_status
+        data['followers_count'] = followers_count
+        data['followings_count'] = followings_count
         data['review_average'] = float(avg.get('rating__avg'))
         data['genres'] = genre_serializer.data
         return JsonResponse(data)
