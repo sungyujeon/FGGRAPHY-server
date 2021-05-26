@@ -288,9 +288,10 @@ from django.db.models import Sum
 from .models import Comment, Movie_User_Rating, Movie_User_Genre_Rating, Review
 class InsertData():
     def my_exec(self):
+        pass
         # self.get_all_movies_by_popularity()
         # self.get_all_movies_from_tmdb()
-        self.get_seed_users()
+        # self.get_seed_users()
         # self.get_seed_review()
         # self.get_seed_comment()
         # self.get_seed_rating()

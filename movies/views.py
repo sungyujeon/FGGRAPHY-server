@@ -204,9 +204,13 @@ def isWriteReview(request, movie_pk):
     }
 
     if Review.objects.filter(user=request.user, movie=movie).exists():
+        review = Review.objects.filter(user=request.user, movie=movie)
+        review_serializer = ReviewSerializer(review)
         data['isWritten'] = True
+        data['reviewInfos'] = review_serializer.data
+        
     return JsonResponse(data)
-    
+
 # comment ======================================================================
 @api_view(['GET', 'POST'])
 @authentication_classes([JSONWebTokenAuthentication])
