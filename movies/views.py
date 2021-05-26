@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-from .modules import TmdbMovie, Ranking
+from .modules import Ranking
 from .models import Movie, Movie_User_Rating, Movie_User_Genre_Rating, Review, Comment, Genre, Genre_User, Collection, Genre_Ranker
 from .serializers import MovieListSerializer, MovieSerializer, ReviewSerializer, CommentListSerializer, CommentSerializer, GenreListSerializer, GenreSerializer, GenreUserListSerializer, GenreRankerSerializer, GenreRankerListSerializer, CollectionListSerializer, CollectionSerializer, MovieUserRatingSerializer, MovieUserRatingDataSerializer
 
@@ -635,29 +635,42 @@ def infinite_scroll_review(request, pk):
 
 # admin============================================================================================================
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def calc_genre_ranking(request):
-    ranking = Ranking()
-    ranking.set_genre_ranking()
-    
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
+    if request.user.username == 'AdminUser':
+        ranking = Ranking()
+        ranking.set_genre_ranking()
+        
+        data = {
+            'success': True
+        }
+        return JsonResponse(data)
+    else:
+        data = {
+            'success': False,
+            'message': '관리자가 아닙니다. 권한이 없습니다.'
+        }
+        return JsonResponse(data)
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def init_genre_ranker(request):
-    ranking = Ranking()
-    ranking.init_genre_ranker_model()
-    
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
-
+    if request.user.username == 'AdminUser':
+        ranking = Ranking()
+        ranking.init_genre_ranker_model()
+        
+        data = {
+            'success': True
+        }
+        return JsonResponse(data)
+    else:
+        data = {
+            'success': False,
+            'message': '관리자가 아닙니다. 권한이 없습니다.'
+        }
+        return JsonResponse(data)
 
 # insert data
 from .modules import InsertData

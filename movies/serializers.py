@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import Movie, Genre, Genre_User, Genre_Ranker, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection, Movie_User_Rating
+from .models import Movie, Genre, Genre_User, Genre_Ranker, Review, Comment, Genre, Collection, Movie_User_Rating
 
 User = get_user_model()
 
@@ -16,6 +16,7 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         exclude = ('movies',)
 
+'''
 class BelongsToCollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = BelongsToCollection
@@ -35,23 +36,16 @@ class SpokenLanguageSerializer(serializers.ModelSerializer):
     class Meta:
         model = SpokenLanguage
         exclude = ('movies',)
+'''
 
 class MovieListSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True, read_only=True)
-    belongs_to_collection = BelongsToCollectionSerializer(read_only=True)
-    production_companies = ProductionCompanySerializer(many=True, read_only=True)
-    production_countries = ProductionCountrySerializer(many=True, read_only=True)
-    spoken_languages = SpokenLanguageSerializer(many=True, read_only=True)
     class Meta:
         model = Movie
         fields = '__all__'
 
 class MovieSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True, read_only=True)
-    belongs_to_collection = BelongsToCollectionSerializer(read_only=True)
-    production_companies = ProductionCompanySerializer(many=True, read_only=True)
-    production_countries = ProductionCountrySerializer(many=True, read_only=True)
-    spoken_languages = SpokenLanguageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Movie

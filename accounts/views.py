@@ -137,13 +137,20 @@ def follow(request, username):
         
 # admin ================================================================================================
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def calc_ranking(request):
-    user_support = UserSupport()
-    users = user_support.set_ranking()
-    
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
+    if request.user.username == 'AdminUser':
+        user_support = UserSupport()
+        users = user_support.set_ranking()
+        
+        data = {
+            'success': True
+        }
+        return JsonResponse(data)
+    else:
+        data = {
+            'success': False,
+            'message': '관리자가 아닙니다. 권한이 없습니다.'
+        }
+        return JsonResponse(data)
