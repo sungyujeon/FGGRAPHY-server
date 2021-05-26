@@ -73,7 +73,7 @@ class Genre_User(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     point = models.IntegerField(default=0)
     ranking = models.IntegerField(null=True, default=10000000)
-    tier = models.IntegerField(null=True, default=None)
+    tier = models.IntegerField(null=True, default=5)
 
 
 class Genre_Ranker(models.Model):

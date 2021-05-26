@@ -309,6 +309,24 @@ class Ranking():
 
     # genre_user set_ranking
     def set_genre_ranking(self):
+
+        total_users = User.objects.all().count()
+        tier_1 = int(total_users * 0.15)
+        tier_2 = int(total_users * 0.3)
+        tier_3 = int(total_users * 0.45)
+        tier_4 = int(total_users * 0.6)
+        def calc_tier(r, tier1, tier2, tier3, tier4):
+            if 1 < r <= tier1:
+                return 1
+            elif r <= tier2:
+                return 2
+            elif r <= tier3:
+                return 3
+            elif r <= tier4:
+                return 4
+            else:
+                return 5
+
         genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
         for genre_id in genre_ids:
             genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')
@@ -320,15 +338,20 @@ class Ranking():
                 p = genre_user.point
                 if i == 0:
                     genre_user.ranking = i+1
+                    genre_user.tier = i
                     genre_user.save()
                     tmp_i = i+1
                     tmp_p = p
                 else:
                     if p == tmp_p:
                         genre_user.ranking = tmp_i
+                        t = calc_tier(tmp_i, tier_1, tier_2, tier_3, tier_4)
+                        genre_user.tier = t
                         genre_user.save()
                     else:
                         genre_user.ranking = i+1
+                        t = calc_tier(i+1, tier_1, tier_2, tier_3, tier_4)
+                        genre_user.tier = t
                         genre_user.save()
                         tmp_i = i+1
                         tmp_p = p

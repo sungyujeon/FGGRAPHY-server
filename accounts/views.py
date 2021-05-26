@@ -139,10 +139,8 @@ def follow(request, username):
 def calc_ranking(request):
     user_support = UserSupport()
     users = user_support.set_ranking()
-    # serializers = UserListSerializer(list(users), many=True)
     
     data = {
         'success': True
     }
     return JsonResponse(data)
-    # return Response(serializers.data)

@@ -5,7 +5,7 @@ class User(AbstractUser):
     followings = models.ManyToManyField('self', symmetrical=False, related_name='followers')
     point = models.IntegerField(default=0)
     ranking = models.IntegerField(null=True, default=10000000)
-    tier = models.IntegerField(null=True, default=None)
+    tier = models.IntegerField(null=True, default=5)
 
 
 
