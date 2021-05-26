@@ -36,9 +36,9 @@
 
 - User 정보 조회 http://127.0.0.1:8000/accounts/profile/{username}/
 
-- User 정보 삭제 http://127.0.0.1:8000/accounts/{username}/ `method:DELETE`
+- User 정보 삭제 http://127.0.0.1:8000/accounts/profile/{username}/ `method:DELETE`
 
-- follow http://127.0.0.1:8000/accounts/{username}/follow/ `method: POST` 
+- follow http://127.0.0.1:8000/accounts/profile/{username}/follow/ `method: POST` 
 
 
 
