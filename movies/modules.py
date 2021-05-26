@@ -1,7 +1,7 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_list_or_404, get_object_or_404
 from django.contrib.auth import get_user_model
 
-from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage
+from .models import Movie, Genre, Genre_User, Genre_Ranker, Movie_User_Genre_Rating, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage
 
 User = get_user_model()
 
@@ -234,7 +234,6 @@ class Ranking():
     # review_like
     def increase_review_like_point(self, review):
         user = get_object_or_404(User, pk=review.user_id)
-        print(user)
         movie = get_object_or_404(Movie, pk=review.movie_id)
 
         genres = movie.genres.all()
@@ -294,8 +293,40 @@ class Ranking():
         user.point -= 1
         user.save()
 
+
+    # collection_like
+    def increase_collection_like_point(self, collection):
+        user = get_object_or_404(User, pk=collection.user_id)
+        user.point += 1
+        user.save()
+
+    def decrease_collection_like_point(self, collection):
+        user = get_object_or_404(User, pk=collection.user_id)
+        user.point -= 1
+        user.save()
+
+
+
     # genre_user set_ranking
     def set_genre_ranking(self):
+
+        total_users = User.objects.all().count()
+        tier_1 = int(total_users * 0.15)
+        tier_2 = int(total_users * 0.3)
+        tier_3 = int(total_users * 0.45)
+        tier_4 = int(total_users * 0.6)
+        def calc_tier(r, tier1, tier2, tier3, tier4):
+            if 1 < r <= tier1:
+                return 1
+            elif r <= tier2:
+                return 2
+            elif r <= tier3:
+                return 3
+            elif r <= tier4:
+                return 4
+            else:
+                return 5
+
         genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
         for genre_id in genre_ids:
             genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')
@@ -307,16 +338,225 @@ class Ranking():
                 p = genre_user.point
                 if i == 0:
                     genre_user.ranking = i+1
+                    genre_user.tier = i
                     genre_user.save()
                     tmp_i = i+1
                     tmp_p = p
                 else:
                     if p == tmp_p:
                         genre_user.ranking = tmp_i
+                        t = calc_tier(tmp_i, tier_1, tier_2, tier_3, tier_4)
+                        genre_user.tier = t
                         genre_user.save()
                     else:
                         genre_user.ranking = i+1
+                        t = calc_tier(i+1, tier_1, tier_2, tier_3, tier_4)
+                        genre_user.tier = t
                         genre_user.save()
                         tmp_i = i+1
                         tmp_p = p
+
+            # genre_id의 1등 유저
+            genre = get_object_or_404(Genre, pk=genre_id)
+            top_genre_user = get_object_or_404(User, pk=genre_users[0].user_id)
+            genre_user_rating = Movie_User_Genre_Rating.objects.filter(genre=genre, user=top_genre_user).order_by('-rating')[0]
+            genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
+            if not genre_ranker.movie or genre_ranker != top_genre_user:
+                movie = get_object_or_404(Movie, pk=genre_user_rating.movie_id)
+                genre_ranker.user = top_genre_user
+                genre_ranker.movie = movie
+                genre_ranker.save()
+            else:
+                print(f'{genre.name} 장르 순위 변동사항 없음')
+        
+        print('장르별 랭킹 계산 완료')
         return
+
+    # init genre ranker model
+    def init_genre_ranker_model(self):
+        genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
+
+        for genre_id in genre_ids:
+            genre = get_object_or_404(Genre, pk=genre_id)
+            
+            genre_ranker, created = Genre_Ranker.objects.get_or_create(
+                genre = genre,
+            )
+        print('init genre ranker model 완료')
+
+
+
+import os
+import random
+import requests
+from dotenv import load_dotenv, dotenv_values
+
+from django_seed import Seed
+from django.http import HttpResponse, JsonResponse
+from django.db.models import Sum
+
+from .models import Comment, Movie_User_Rating, Movie_User_Genre_Rating, Review
+class InsertData():
+    def my_exec(self):
+        # self.get_all_movies_from_tmdb()
+        # self.get_seed_users()
+        # self.get_seed_review()
+        # self.get_seed_comment()
+        self.get_seed_rating()
+        self.set_seed_genre_rating()
+        self.count_genre_reviews()
+        self.count_genre_comments()
+        self.count_ratings()
+        self.remove_user()
+    
+    def remove_user(self):
+        user_len = User.objects.all().count()
+        for i in range(101, user_len+1):
+            user = get_object_or_404(User, pk=i)
+            user.delete()
+        print('에러 유저 삭제 완료')
+
+    def get_all_movies_from_tmdb(self):
+        Movie.objects.all().delete()  # movie 정보 삭제
+        load_dotenv()
+        tmdb_api_key = os.getenv('TMDB_API_KEY')
+
+        for id in range(50):
+            URL = f'https://api.themoviedb.org/3/movie/{id}?api_key={tmdb_api_key}&language=ko&region=KR'
+            res = requests.get(URL)
+
+            # existed movies only
+            if res.status_code == 200:
+                data = res.json()
+                movie = TmdbMovie(data)
+                movie.create_movie()
+                print(f'{movie.id} 생성 완료')
+
+
+    def get_seed_users(self):
+        print('유저 생성 시작')
+        seeder = Seed.seeder()
+    
+        seeder.add_entity(User, 100, {
+            'point': lambda x: random.randint(1, 100),
+            'ranking': None,
+            'tier': None,
+        })
+        seeder.execute()
+
+        # tmp user genre
+        for i in range(1, 101):
+            user = get_object_or_404(User, pk=i)
+            self.set_genre_user(user)
+            
+        print('user 생성 완료')
+
+    def set_genre_user(self, user):
+        genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
+        for genre_id in genre_ids:
+            genre = get_object_or_404(Genre, pk=genre_id)
+            
+            genre_user, created = Genre_User.objects.get_or_create(
+                user = user,
+                genre = genre,
+            )
+
+
+    def get_seed_rating(self):
+        rate_numbers = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
+        movie_ids = [2,3,5,6,8,9,11,12,13,14,15,16,17,18,19,20,21,22,24,25,26,27,28,30,31,32,33,35,38]
+
+        seeder = Seed.seeder()
+        
+        seeder.add_entity(Movie_User_Rating, 10000, {
+            'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
+            'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 28)]),
+            'rating': lambda x: rate_numbers[random.randint(0, 9)],
+        })
+        seeder.execute()
+
+        print('평점 생성 완료')
+
+    def set_seed_genre_rating(self):
+        ratings = Movie_User_Rating.objects.all()
+
+        for rating in ratings:
+            movie = get_object_or_404(Movie, pk=rating.movie_id)
+            user = get_object_or_404(User, pk=rating.user_id)
+            rating_num = rating.rating
+            
+            genres = movie.genres.all()
+            for genre in genres:
+                Movie_User_Genre_Rating.objects.create(
+                    movie = movie,
+                    user = user,
+                    genre = genre,
+                    rating = rating_num,
+                )
+        
+        print('평가 결과 바탕 장르별 영화 평점 계산 완료')
+
+    def count_ratings(self):
+        res = Movie_User_Rating.objects.values('movie').order_by('movie').annotate(total=Sum('rating')).order_by('-total')
+        
+        for obj in res:
+            movie_id = obj.get('movie')
+            total = obj.get('total')
+
+            movie = get_object_or_404(Movie, pk=movie_id)
+            cnt = Movie_User_Rating.objects.filter(movie=movie_id).count()
+            avg = format(total / cnt, '.1f')
+            
+            # insert data into db
+            movie.rating_average = avg
+            movie.rating_count = cnt
+            movie.save()
+
+        print('평점 계산 완료')
+
+
+    def get_seed_review(self):
+        movie_ids = [2,3,5,6,8,9,11,12,13,14,15,16,17,18,19,20,21,22,24,25,26,27,28,30,31,32,33,35,38]
+
+        seeder = Seed.seeder()
+        
+        seeder.add_entity(Review, 200, {
+            'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
+            'movie': lambda x: get_object_or_404(Movie, pk=movie_ids[random.randint(0, 28)]),
+        })
+        seeder.execute()
+
+        print('review 정보 생성 완료')
+
+    def count_genre_reviews(self):
+        reviews = get_list_or_404(Review)
+        ranking = Ranking()
+        
+        # 생성된 review 기반 point 증가
+        for review in reviews:
+            ranking.increase_review_point(review)
+
+        print('review 기반 유저별 장르 포인트 계산 완료')
+
+
+    def get_seed_comment(self):
+        seeder = Seed.seeder()
+        
+        seeder.add_entity(Comment, 500, {
+            'user': lambda x: get_object_or_404(get_user_model(), pk=random.randint(1, 100)),
+            'review': lambda x: get_object_or_404(Review, pk=random.randint(1, 200)),
+        })
+        seeder.execute()
+
+        print('comment 생성 완료')
+
+    def count_genre_comments(self):
+        comments = get_list_or_404(Comment)
+
+        # 생성된 comment 기반 point 증가
+        for comment in comments:
+            review = get_object_or_404(Review, pk=comment.review_id)
+            ranking = Ranking()
+            ranking.increase_comment_point(review)
+        
+        print('comment 기반 유저별 장르 포인트 계산 완료')

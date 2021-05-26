@@ -1,5 +1,15 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import Movie, Genre, Genre_User, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre
+
+from .models import Movie, Genre, Genre_User, Genre_Ranker, BelongsToCollection, ProductionCompany, ProductionCountry, SpokenLanguage, Review, Comment, Genre, Collection, Movie_User_Rating
+
+User = get_user_model()
+
+class UserSerailizaer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username',)
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,21 +70,15 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('user', 'review',)
 
-class ReviewListSerializer(serializers.ModelSerializer):
-    like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
-    comments = CommentListSerializer(many=True, read_only=True)
-    class Meta:
-        model = Review
-        fields = '__all__'
-        read_only_fields = ('movie', 'user', 'like_users',)
 
 class ReviewSerializer(serializers.ModelSerializer):
     like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
-    comments = CommentListSerializer(many=True, read_only=True)
+    user = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
     class Meta:
         model = Review
         fields = '__all__'
-        read_only_fields = ('movie', 'user', 'like_users',)
+        read_only_fields = ('movie', 'user', 'like_users', 'like_users_count')
 
 class GenreSerializer(serializers.ModelSerializer):
     
@@ -89,7 +93,51 @@ class GenreListSerializer(serializers.ModelSerializer):
         exclude = ('movies',)
 
 class GenreUserListSerializer(serializers.ModelSerializer):
-
+    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    
     class Meta:
         model = Genre_User
         fields = '__all__'
+
+class GenreRankerSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True)
+    class Meta:
+        model = Genre_Ranker
+        fields = '__all__'
+        read_only_fields = ('genre', )
+
+class GenreRankerListSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True)
+    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    movie = MovieSerializer(read_only=True)
+    class Meta:
+        model = Genre_Ranker
+        fields = '__all__'
+        read_only_fields = ('genre', )
+
+
+class CollectionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Collection
+        fields = '__all__'
+        read_only_fields = ('user', 'movies', 'like_users',)
+
+class CollectionListSerializer(serializers.ModelSerializer):
+    collections = CollectionSerializer(many=True, read_only=True)
+    class Meta:
+        model = Collection
+        fields = '__all__'
+
+
+class MovieUserRatingSerializer(serializers.ModelSerializer):
+    movie = MovieSerializer(read_only=True)
+    class Meta:
+        model = Movie_User_Rating
+        fields = ('rating', 'movie', )
+
+class MovieUserRatingDataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Movie_User_Rating
+        fields = ('rating',)

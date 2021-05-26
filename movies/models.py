@@ -62,13 +62,24 @@ class Movie_User_Rating(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     rating = models.FloatField()
 
+class Movie_User_Genre_Rating(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    rating = models.FloatField()
+
 class Genre_User(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     point = models.IntegerField(default=0)
-    ranking = models.IntegerField(null=True, default=None)
-    tier = models.IntegerField(null=True, default=None)
+    ranking = models.IntegerField(null=True, default=10000000)
+    tier = models.IntegerField(null=True, default=5)
 
+
+class Genre_Ranker(models.Model):
+    genre = models.OneToOneField(Genre, unique=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, default=None)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, null=True, default=None)
 
 class Review(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
@@ -85,3 +96,11 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+# Collection
+class Collection(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    movies = models.ManyToManyField(Movie, related_name='collections')
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like_collections')
+    title = models.CharField(max_length=50)
+    

@@ -1,18 +1,17 @@
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, get_list_or_404
+from django.contrib.auth import get_user_model
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-from .serializers import UserSerializer, UserListSerializer
+from .serializers import UserSerializer, UserDataSerializer
 from .modules import UserSupport
-
-# lib for insert data
-import random
-from .modules import UserSupport
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from django_seed import Seed
-from django.http import JsonResponse
-# end lib for insert data
+from movies.models import Genre_User
+from movies.serializers import GenreUserListSerializer
 
 User = get_user_model()
 
@@ -30,10 +29,11 @@ def signup(request):
 		
 	#2. UserSerializer를 통해 데이터 직렬화
     serializer = UserSerializer(data=request.data)
-    
+
 	#3. validation 작업 진행 -> password도 같이 직렬화 진행
     if serializer.is_valid(raise_exception=True):
         user = serializer.save()
+        
         #4. 비밀번호 해싱 후 
         user.set_password(request.data.get('password'))
         user.save()
@@ -46,47 +46,100 @@ def signup(request):
         # password는 직렬화 과정에는 포함 되지만 → 표현(response)할 때는 나타나지 않는다.
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_or_update_or_delete_user(request, username):
+    user = get_object_or_404(User, username=username)
+    if request.method == 'GET':
+        genre_user_rankings = Genre_User.objects.filter(user=user)
+        user_serializer = UserDataSerializer(user)
+        genre_serializer = GenreUserListSerializer(list(genre_user_rankings), many=True)
+
+        data = dict(user_serializer.data)
+        data['genres'] = genre_serializer.data
+        return JsonResponse(data)
+    elif request.user == user:  # 로그인한 사용자와 수정/삭제하려는 사용자가 일치할 때
+        if request.method == 'PUT':
+            print('???????? 왜 회원정보 수정이 안되는거야...')
+            
+            # serializer = UserSerializer(user, data=request.data)
+            # print(serializer)
+            # if serializer.is_valid(raise_exception=True):
+            #     serializer.save()
+            #     user.set_password(request.data.get('password'))
+            #     user.save()
+            #     return Response(serializer.data)
+            data = {
+                'success': False,
+                'status': 'updated',
+            }
+            return JsonResponse(data)
+        elif request.method == 'DELETE':
+            user.delete()
+            data = {
+                'success': True,
+                'status': 'deleted',
+            }
+            return JsonResponse(data)
+    else:
+        data = {
+            'success': False,
+            'message': '사용자가 일치하지 않습니다.',
+        }
+        return JsonResponse(data)
+
+# ranking
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
-def get_top_ranked_users(request, count):
-    users = User.objects.all().order_by('ranking')[:count]
-    serializer = UserListSerializer(list(users), many=True)
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_top_ranked_users(request):
+    user_num = int(request.GET.get('user_num'))
+
+    users = User.objects.all().order_by('ranking')[:user_num]
+    serializer = UserDataSerializer(list(users), many=True)
 
     return Response(serializer.data)
 
-# admin
+# follow
+@api_view(['POST'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def follow(request, username):
+    me = get_object_or_404(User, pk=2)
+    you = get_object_or_404(User, username=username)
+
+    if me == you:
+        data = {
+            'success': False,
+            'message': '동일한 사용자입니다.'
+        }
+        return JsonResponse(data)
+    else:
+        if you.followers.filter(pk=me.pk).exists():  # 팔로워 목록에 있으면 취소
+            you.followers.remove(me)
+            follow_status = False
+        else:
+            you.followers.add(me)
+            follow_status = True
+        
+        data = {
+            'success': True,
+            'follow_status': follow_status,
+        }
+        return JsonResponse(data)
+
+
+        
+# admin ================================================================================================
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
 def calc_ranking(request):
     user_support = UserSupport()
     users = user_support.set_ranking()
-    # serializers = UserListSerializer(list(users), many=True)
     
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
-    # return Response(serializers.data)
-
-# insert data / admin ================================================================================================
-def get_seed_users(request):
-    seeder = Seed.seeder()
-    
-    seeder.add_entity(User, 100, {
-        'point': lambda x: random.randint(1, 100),
-        'ranking': 0,
-        'tier': 0,
-    })
-    seeder.execute()
-
-    # tmp user genre
-    for i in range(1, 101):
-        user = get_object_or_404(User, pk=i)
-        user_support = UserSupport()
-        user_support.set_genre_user(user)
-        
     data = {
         'success': True
     }
