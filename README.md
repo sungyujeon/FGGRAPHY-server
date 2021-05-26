@@ -135,3 +135,8 @@
 
 - 리뷰 http://127.0.0.1:8000/api/v1/movies/infinite-scroll/reviews/?page_num={page_num}
 
+
+
+
+
+## sass with vue

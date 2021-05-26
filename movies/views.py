@@ -575,12 +575,7 @@ def get_user_top_rated_movies(request, username):
     user = get_object_or_404(User, username=username)
     ratings = Movie_User_Rating.objects.filter(user=user).order_by('-rating')[:movie_count]
     
-    movies = []
-    for rating in ratings:
-        movie = get_object_or_404(Movie, pk=rating.movie_id)
-        movies.append(movie)
-    
-    serializer = MovieListSerializer(movies, many=True)
+    serializer = MovieUserRatingSerializer(list(ratings), many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])

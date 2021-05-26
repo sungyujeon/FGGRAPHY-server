@@ -134,7 +134,7 @@ class MovieUserRatingSerializer(serializers.ModelSerializer):
     movie = MovieSerializer(read_only=True)
     class Meta:
         model = Movie_User_Rating
-        fields = ('rating', 'movie', )
+        fields = ('rating', 'movie',)
 
 class MovieUserRatingDataSerializer(serializers.ModelSerializer):
 
