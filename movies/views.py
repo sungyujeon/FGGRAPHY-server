@@ -205,7 +205,7 @@ def isWriteReview(request, movie_pk):
 
     if Review.objects.filter(user=request.user, movie=movie).exists():
         review = Review.objects.filter(user=request.user, movie=movie)
-        review_serializer = ReviewSerializer(review)
+        review_serializer = ReviewSerializer(review[0])
         data['isWritten'] = True
         data['reviewInfos'] = review_serializer.data
         
