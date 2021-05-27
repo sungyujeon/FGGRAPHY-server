@@ -11,105 +11,123 @@ class Ranking():
     
     # review
     def increase_review_point(self, review):
-        user = get_object_or_404(User, pk=review.user_id)
-        movie = get_object_or_404(Movie, pk=review.movie_id)
+        try:
+            user = get_object_or_404(User, pk=review.user_id)
+            movie = get_object_or_404(Movie, pk=review.movie_id)
 
-        genres = movie.genres.all()
-        for genre in genres:
-            # genre.total_review_count
-            genre.total_review_count += 1
-            genre.save()
-            
-            # genre_user
-            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
-            genre_user.point += 1
-            genre_user.save()
+            genres = movie.genres.all()
+            for genre in genres:
+                # genre.total_review_count
+                genre.total_review_count += 1
+                genre.save()
+                
+                # genre_user
+                genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+                genre_user.point += 1
+                genre_user.save()
 
-        # user
-        user.point += 1
-        user.save()
+            # user
+            user.point += 1
+            user.save()
+        except:
+            return False
         
     def decrease_review_point(self, review):
-        user = get_object_or_404(User, pk=review.user_id)
-        movie = get_object_or_404(Movie, pk=review.movie_id)
+        try:
+            user = get_object_or_404(User, pk=review.user_id)
+            movie = get_object_or_404(Movie, pk=review.movie_id)
 
-        genres = movie.genres.all()
-        for genre in genres:
-            # genre.total_review_count
-            genre.total_review_count -= 1
-            genre.save()
-            
-            # genre_user
-            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
-            genre_user.point -= 1
-            genre_user.save()
+            genres = movie.genres.all()
+            for genre in genres:
+                # genre.total_review_count
+                genre.total_review_count -= 1
+                genre.save()
+                
+                # genre_user
+                genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+                genre_user.point -= 1
+                genre_user.save()
 
-        # user
-        user.point -= 1
-        user.save()
+            # user
+            user.point -= 1
+            user.save()
+        except:
+            return False
 
 
     # review_like
     def increase_review_like_point(self, review):
-        user = get_object_or_404(User, pk=review.user_id)
-        movie = get_object_or_404(Movie, pk=review.movie_id)
+        try:
+            user = get_object_or_404(User, pk=review.user_id)
+            movie = get_object_or_404(Movie, pk=review.movie_id)
 
-        genres = movie.genres.all()
-        for genre in genres:
-            # genre_user
-            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
-            genre_user.point += 1
-            genre_user.save()
+            genres = movie.genres.all()
+            for genre in genres:
+                # genre_user
+                genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+                genre_user.point += 1
+                genre_user.save()
 
-        # user
-        user.point += 1
-        user.save()
+            # user
+            user.point += 1
+            user.save()
+        except:
+            return False
 
-    def decrease_review_like_point(self, review):
-        user = get_object_or_404(User, pk=review.user_id)
-        movie = get_object_or_404(Movie, pk=review.movie_id)
+        def decrease_review_like_point(self, review):
+            try:
+                user = get_object_or_404(User, pk=review.user_id)
+                movie = get_object_or_404(Movie, pk=review.movie_id)
 
-        genres = movie.genres.all()
-        for genre in genres:
-            # genre_user
-            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
-            genre_user.point -= 1
-            genre_user.save()
+                genres = movie.genres.all()
+                for genre in genres:
+                    # genre_user
+                    genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+                    genre_user.point -= 1
+                    genre_user.save()
 
-        # user
-        user.point -= 1
-        user.save()
+                # user
+                user.point -= 1
+                user.save()
+            except:
+                return False
 
     # comment 받은 사람
     def increase_comment_point(self, review):
-        user = get_object_or_404(User, pk=review.user_id)
-        movie = get_object_or_404(Movie, pk=review.movie_id)
+        try:
+            user = get_object_or_404(User, pk=review.user_id)
+            movie = get_object_or_404(Movie, pk=review.movie_id)
 
-        genres = movie.genres.all()
-        for genre in genres:
-            # genre_user
-            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
-            genre_user.point += 1
-            genre_user.save()
+            genres = movie.genres.all()
+            for genre in genres:
+                # genre_user
+                genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+                genre_user.point += 1
+                genre_user.save()
 
-        # user
-        user.point += 1
-        user.save()
+            # user
+            user.point += 1
+            user.save()
+        except:
+            return False
 
     def decrease_comment_point(self, review):
-        user = get_object_or_404(User, pk=review.user_id)
-        movie = get_object_or_404(Movie, pk=review.movie_id)
+        try:
+            user = get_object_or_404(User, pk=review.user_id)
+            movie = get_object_or_404(Movie, pk=review.movie_id)
 
-        genres = movie.genres.all()
-        for genre in genres:
-            # genre_user
-            genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
-            genre_user.point -= 1
-            genre_user.save()
+            genres = movie.genres.all()
+            for genre in genres:
+                # genre_user
+                genre_user = get_object_or_404(Genre_User, genre=genre, user=user)
+                genre_user.point -= 1
+                genre_user.save()
 
-        # user
-        user.point -= 1
-        user.save()
+            # user
+            user.point -= 1
+            user.save()
+        except:
+            return False
 
 
     # collection_like
@@ -127,85 +145,89 @@ class Ranking():
 
     # genre_user set_ranking
     def set_genre_ranking(self):
-
-        total_users = User.objects.all().count()
-        tier_1 = int(total_users * 0.15)
-        tier_2 = int(total_users * 0.3)
-        tier_3 = int(total_users * 0.45)
-        tier_4 = int(total_users * 0.6)
-        def calc_tier(r, tier1, tier2, tier3, tier4):
-            if 1 < r <= tier1:
-                return 1
-            elif r <= tier2:
-                return 2
-            elif r <= tier3:
-                return 3
-            elif r <= tier4:
-                return 4
-            else:
-                return 5
-
-        genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
-        for genre_id in genre_ids:
-            genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')
-
-            tmp_i = 0
-            tmp_p = 0
-            for i in range(len(genre_users)):
-                genre_user = genre_users[i]
-                p = genre_user.point
-                if i == 0:
-                    genre_user.ranking = i+1
-                    genre_user.tier = i
-                    genre_user.save()
-                    tmp_i = i+1
-                    tmp_p = p
+        try:
+            total_users = User.objects.all().count()
+            tier_1 = int(total_users * 0.15)
+            tier_2 = int(total_users * 0.3)
+            tier_3 = int(total_users * 0.45)
+            tier_4 = int(total_users * 0.6)
+            def calc_tier(r, tier1, tier2, tier3, tier4):
+                if 1 < r <= tier1:
+                    return 1
+                elif r <= tier2:
+                    return 2
+                elif r <= tier3:
+                    return 3
+                elif r <= tier4:
+                    return 4
                 else:
-                    if p == tmp_p:
-                        genre_user.ranking = tmp_i
-                        t = calc_tier(tmp_i, tier_1, tier_2, tier_3, tier_4)
-                        genre_user.tier = t
-                        genre_user.save()
-                    else:
+                    return 5
+
+            genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
+            for genre_id in genre_ids:
+                genre_users = Genre_User.objects.filter(genre_id=genre_id).order_by('-point')
+
+                tmp_i = 0
+                tmp_p = 0
+                for i in range(len(genre_users)):
+                    genre_user = genre_users[i]
+                    p = genre_user.point
+                    if i == 0:
                         genre_user.ranking = i+1
-                        t = calc_tier(i+1, tier_1, tier_2, tier_3, tier_4)
-                        genre_user.tier = t
+                        genre_user.tier = i
                         genre_user.save()
                         tmp_i = i+1
                         tmp_p = p
+                    else:
+                        if p == tmp_p:
+                            genre_user.ranking = tmp_i
+                            t = calc_tier(tmp_i, tier_1, tier_2, tier_3, tier_4)
+                            genre_user.tier = t
+                            genre_user.save()
+                        else:
+                            genre_user.ranking = i+1
+                            t = calc_tier(i+1, tier_1, tier_2, tier_3, tier_4)
+                            genre_user.tier = t
+                            genre_user.save()
+                            tmp_i = i+1
+                            tmp_p = p
 
-            # genre_id의 1등 유저
-            genre = get_object_or_404(Genre, pk=genre_id)
-            try:
-                top_genre_user = get_object_or_404(User, pk=genre_users[0].user_id)
-                genre_user_rating = Movie_User_Genre_Rating.objects.filter(genre=genre, user=top_genre_user).order_by('-rating')[0]
-                
-                genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
-                if not genre_ranker.movie or genre_ranker != top_genre_user:
-                    movie = get_object_or_404(Movie, pk=genre_user_rating.movie_id)
-                    genre_ranker.user = top_genre_user
-                    genre_ranker.movie = movie
-                    genre_ranker.save()
-                else:
-                    print(f'{genre.name} 장르 순위 변동사항 없음')
-            except:
-                print('error')
-        
-        print('장르별 랭킹 계산 완료')
-        return
+                # genre_id의 1등 유저
+                genre = get_object_or_404(Genre, pk=genre_id)
+                try:
+                    top_genre_user = get_object_or_404(User, pk=genre_users[0].user_id)
+                    genre_user_rating = Movie_User_Genre_Rating.objects.filter(genre=genre, user=top_genre_user).order_by('-rating')[0]
+                    
+                    genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
+                    if not genre_ranker.movie or genre_ranker != top_genre_user:
+                        movie = get_object_or_404(Movie, pk=genre_user_rating.movie_id)
+                        genre_ranker.user = top_genre_user
+                        genre_ranker.movie = movie
+                        genre_ranker.save()
+                    else:
+                        print(f'{genre.name} 장르 순위 변동사항 없음')
+                except:
+                    print('error')
+            
+            print('장르별 랭킹 계산 완료')
+        except:
+            return False
 
     # init genre ranker model
     def init_genre_ranker_model(self):
-        genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
+        try:
+            genre_ids = [12, 14, 16, 18, 27, 28, 35, 36, 37, 53, 80, 99, 878, 9648, 10402, 10749, 10751, 10752]
 
-        for genre_id in genre_ids:
-            genre = get_object_or_404(Genre, pk=genre_id)
+            for genre_id in genre_ids:
+                genre = get_object_or_404(Genre, pk=genre_id)
+                
+                genre_ranker, created = Genre_Ranker.objects.get_or_create(
+                    genre = genre,
+                )
+            print('init genre ranker model 완료')
+        except:
+            return False
             
-            genre_ranker, created = Genre_Ranker.objects.get_or_create(
-                genre = genre,
-            )
-        print('init genre ranker model 완료')
-
 class TMDBMovie():
 
     def __init__(self, params, rt, mg):
@@ -292,7 +314,7 @@ from django.db.models import Sum
 from .models import Comment, Movie_User_Rating, Movie_User_Genre_Rating, Review
 class InsertData():
     def my_exec(self):
-        pass
+        return False
         # self.get_all_movies_by_popularity()
         # self.get_seed_users()
         # self.get_seed_review()
@@ -300,8 +322,8 @@ class InsertData():
         # self.get_seed_rating()
         # self.set_seed_genre_rating()
         # self.count_genre_reviews()
-        self.count_genre_comments()
-        self.count_ratings()
+        # self.count_genre_comments()
+        # self.count_ratings()
         # self.get_all_movies_from_tmdb()
         # self.remove_user()
     
@@ -328,30 +350,33 @@ class InsertData():
     #             movie.create_movie()
     #             print(f'{movie.id} 생성 완료')
     def get_all_movies_by_popularity(self):
-        load_dotenv()
-        tmdb_api_key = os.getenv('TMDB_API_KEY')
-        for i in range(1, 300):
-            URL = f'https://api.themoviedb.org/3/discover/movie?page={i}&sort_by=popularity.desc&api_key={tmdb_api_key}&language=ko&region=KR'
-            res = requests.get(URL)
-            if res.status_code == 200:
-                movies = res.json().get('results')
-                
-                for res_movie in movies:
-                    movie_id = res_movie.get('id')
-                    idURL = f'https://api.themoviedb.org/3/movie/{movie_id}?api_key={tmdb_api_key}&language=ko&region=KR'
-                    idRes = requests.get(idURL)
-
-                    if idRes.status_code == 200:
-                        idData = idRes.json()
-                        movie_runtime = idData.get('runtime')
-                        movie_genres = idData.get('genres')
-                    else:
-                        movie_runtime = None
-                        idGenres = None
+        try:
+            load_dotenv()
+            tmdb_api_key = os.getenv('TMDB_API_KEY')
+            for i in range(1, 300):
+                URL = f'https://api.themoviedb.org/3/discover/movie?page={i}&sort_by=popularity.desc&api_key={tmdb_api_key}&language=ko&region=KR'
+                res = requests.get(URL)
+                if res.status_code == 200:
+                    movies = res.json().get('results')
                     
-                    movie = TMDBMovie(res_movie, movie_runtime, movie_genres)
-                    movie.create_movie()
-                    print(f'{movie.title} 생성 완료')
+                    for res_movie in movies:
+                        movie_id = res_movie.get('id')
+                        idURL = f'https://api.themoviedb.org/3/movie/{movie_id}?api_key={tmdb_api_key}&language=ko&region=KR'
+                        idRes = requests.get(idURL)
+
+                        if idRes.status_code == 200:
+                            idData = idRes.json()
+                            movie_runtime = idData.get('runtime')
+                            movie_genres = idData.get('genres')
+                        else:
+                            movie_runtime = None
+                            idGenres = None
+                        
+                        movie = TMDBMovie(res_movie, movie_runtime, movie_genres)
+                        movie.create_movie()
+                        print(f'{movie.title} 생성 완료')
+        except:
+            return False
 
     def get_seed_users(self):
         print('유저 생성 시작')
