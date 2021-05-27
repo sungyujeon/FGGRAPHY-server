@@ -69,7 +69,10 @@ def get_or_update_or_delete_user(request, username):
         data['follow_status'] = follow_status
         data['followers_count'] = followers_count
         data['followings_count'] = followings_count
-        data['review_average'] = float(avg.get('rating__avg'))
+        try:
+            data['review_average'] = float(avg.get('rating__avg'))
+        except:
+            data['review_average'] = 0.0
         data['genres'] = genre_serializer.data
         return JsonResponse(data)
     elif request.user == user:  # 로그인한 사용자와 수정/삭제하려는 사용자가 일치할 때

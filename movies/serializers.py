@@ -68,6 +68,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     like_users_count = serializers.IntegerField(source='like_users.count', read_only=True)
     user = serializers.SlugRelatedField(read_only=True, slug_field='username')
+    movie = MovieSerializer(read_only=True)
 
     class Meta:
         model = Review
@@ -88,7 +89,7 @@ class GenreListSerializer(serializers.ModelSerializer):
 
 class GenreUserListSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(slug_field='username', read_only=True)
-    genre = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    genre = GenreSerializer(read_only=True)
     
     class Meta:
         model = Genre_User

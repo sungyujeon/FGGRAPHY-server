@@ -391,18 +391,20 @@ def get_genre_ranking_page_data(request):
 def update_genre_ranking_page_data(request, genre_id):
     genre = get_object_or_404(Genre, pk=genre_id)
     genre_ranker = get_object_or_404(Genre_Ranker, genre=genre)
-    
-    serializer = GenreRankerSerializer(genre_ranker, data=request.data)
-    
-    if serializer.is_valid(raise_exception=True):
-        serializer.save()
 
-        return Response(serializer.data)
+    if genre_ranker.user == request.user:
+        serializer = GenreRankerSerializer(genre_ranker, data=request.data)
+        
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+            return Response(serializer.data)
 
     data = {
         'success': False,
     }
     return JsonResponse(data)
+    
 
 
 # collections ====================================================================================
