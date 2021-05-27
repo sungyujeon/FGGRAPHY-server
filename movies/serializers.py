@@ -53,12 +53,15 @@ class MovieSerializer(serializers.ModelSerializer):
 
 
 class CommentListSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(read_only=True, slug_field='username')
     class Meta:
         model = Comment
         fields = '__all__'
         read_only_fields = ('user', 'review',)
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
     class Meta:
         model = Comment
         fields = '__all__'
