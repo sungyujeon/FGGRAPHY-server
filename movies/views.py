@@ -27,8 +27,8 @@ def search(request, title):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@authentication_classes([JSONWebTokenAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
 def get_all_movies(request):
     movies = get_list_or_404(Movie)
     serializer = MovieListSerializer(movies, many=True)
@@ -560,16 +560,17 @@ def get_or_update_rating(request, movie_pk):
         if Movie_User_Rating.objects.filter(user=user, movie=movie).exists():  # 이미 평가를 했다면 수정 or 삭제
             rating = get_object_or_404(Movie_User_Rating, user=user, movie=movie)
             curr_rating = rating.rating
-
+            print(curr_rating, input_rating)
             if input_rating == curr_rating:  # 같으면 삭제
-                rating.delete()
+                pass
+                # rating.delete()
 
-                # genre rating도 삭제
-                for genre in genres:
-                    genre_rating = get_object_or_404(Movie_User_Genre_Rating, movie=movie, user=user, genre=genre)
-                    genre_rating.delete()
+                # # genre rating도 삭제
+                # for genre in genres:
+                #     genre_rating = get_object_or_404(Movie_User_Genre_Rating, movie=movie, user=user, genre=genre)
+                #     genre_rating.delete()
 
-                data['rating_status'] = 'deleted'
+                # data['rating_status'] = 'deleted'
             else:  # 다르면 수정
                 rating.rating = input_rating
                 rating.save()
