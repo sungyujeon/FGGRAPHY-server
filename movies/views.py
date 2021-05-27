@@ -66,8 +66,8 @@ def get_movie_detail(request, movie_pk):
         return JsonResponse(data)
 
 @api_view(['GET'])
-@authentication_classes([JSONWebTokenAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
 def get_top_rated_movies(request):
     try:
         movie_count = int(request.GET.get('movie_count'))
@@ -83,8 +83,8 @@ def get_top_rated_movies(request):
         return JsonResponse(data)
 
 @api_view(['GET'])
-@authentication_classes([JSONWebTokenAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
 def get_top_ranked_users_movies(request):
     try:
         ranker_num = int(request.GET.get('ranker_num'))
