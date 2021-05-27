@@ -706,11 +706,20 @@ def init_genre_ranker(request):
 
 # insert data
 from .modules import InsertData
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def insert_data(request):
-    insert = InsertData()
-    insert.my_exec()
-    
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
+    if request.user.username == 'AdminUser':
+        insert = InsertData()
+        insert.my_exec()
+        
+        data = {
+            'success': True,
+        }
+        return JsonResponse(data)
+    else:
+        data = {
+            'success': False,
+        }
+        return JsonResponse(data)
