@@ -188,13 +188,14 @@
 
 
 
+## Deploy
 
-
-## References
-
-- API 요청 URLs
-
-- 
+- Server
+  - AWS Cloud9(IDE)
+  - AWS EC2(Instance)
+  - AWS Router53(domain)
+- client
+  - Netlify 이용
 
 
 
