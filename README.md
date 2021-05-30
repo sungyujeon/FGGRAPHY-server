@@ -190,6 +190,8 @@
 
 ## Deploy
 
+> not currently in active
+
 - Server
   - AWS Cloud9(IDE)
   - AWS EC2(Instance)
